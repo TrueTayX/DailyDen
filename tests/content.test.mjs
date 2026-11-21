@@ -1,8 +1,9 @@
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import test from 'node:test'
 import { authoredSets, variedSets } from '../content/authored.mjs'
 import { workshopSets } from '../content/workshop.mjs'
-import { compileCatalog, validateAnswer } from '../src/engine/compile.mjs'
+import { compileCatalog, compilePuzzle, validateAnswer } from '../src/engine/compile.mjs'
 import { apply, sceneKey } from '../src/engine/rules.mjs'
 
 const r = (op, ...args) => ({ op, args })
@@ -35,6 +36,35 @@ test('alternative interpretations are rejected before choices are generated', ()
   assert.throws(() => validateAnswer({ examples: pairs(ambiguous, rule), input, rule }), /Ambiguous challenge/)
   const corrected = [...ambiguous, symbol('circle', 'violet', 3)]
   assert.deepEqual(validateAnswer({ examples: pairs(corrected, rule), input, rule }), symbol('circle', 'amber', 4))
+})
+
+test('the first-month badge puzzle demonstrates Amber in both branches and the full color cycle', () => {
+  const schedule = JSON.parse(readFileSync(new URL('../content/season-one.json', import.meta.url), 'utf8'))
+  const { id, puzzles } = schedule.find(set => set.date === '2026-12-02')
+  const badge = puzzles[3]
+  const puzzleId = `${id}-4`
+  const original = {
+    ...badge,
+    inputs: [
+      symbol('triangle', 'violet', 3),
+      symbol('square', 'teal', 5),
+      symbol('square', 'violet', 2),
+      symbol('square', 'violet', 3),
+    ],
+  }
+  assert.doesNotThrow(() => compilePuzzle(original, puzzleId, 3))
+  assert.throws(() => compilePuzzle(original, puzzleId, 3, { requireEvidence: true }), /show the challenge color and shape/)
+  const incompleteCycle = { ...badge, inputs: badge.inputs.filter(input => input.color !== 'teal') }
+  assert.throws(() => compilePuzzle(incompleteCycle, puzzleId, 3, { requireEvidence: true }), /color cycle, including teal/)
+
+  const puzzle = compilePuzzle(badge, puzzleId, 3, { requireEvidence: true })
+  const odd = puzzle.examples.filter(({ input }) => input.dots % 2 === 1)
+  assert.deepEqual(odd.map(({ input, output }) => [input.color, output.color]), [
+    ['violet', 'teal'], ['teal', 'amber'], ['amber', 'violet'],
+  ])
+  const even = puzzle.examples.find(({ input }) => input.dots % 2 === 0 && input.color === 'amber')
+  assert.deepEqual(even, { input: symbol('circle', 'amber', 2), output: symbol('circle', 'amber', 1) })
+  assert.deepEqual(puzzle.choices.find(choice => choice.id === puzzle.correct).scene, symbol('circle', 'amber', 3))
 })
 
 test('different rules can be accepted when their predictions agree', () => {

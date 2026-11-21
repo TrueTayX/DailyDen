@@ -77,7 +77,7 @@ export function candidates(kind) {
   ]
 }
 
-function test(input, [property, value]) {
+export function matchesCondition(input, [property, value]) {
   if (property === 'even') return (input.dots ?? input.value) % 2 === 0
   if (property === 'atLeast') return input.value >= value
   return input[property] === value
@@ -111,7 +111,7 @@ export function apply(input, { op, args }) {
   switch (op) {
     case 'identity': return input
     case 'then': return apply(apply(input, a), b)
-    case 'if': return apply(input, test(input, a) ? b : c)
+    case 'if': return apply(input, matchesCondition(input, a) ? b : c)
     case 'color': return { ...input, color: colors[wrap(colors.indexOf(input.color) + a, colors.length)] }
     case 'shape': return { ...input, shape: shapes[wrap(shapes.indexOf(input.shape) + a, shapes.length)] }
     case 'dots': return input.dots + a < 0 || input.dots + a > 5 ? null : { ...input, dots: input.dots + a }

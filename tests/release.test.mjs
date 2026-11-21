@@ -39,6 +39,34 @@ test('all previously published playtest rotations retain the same payloads', () 
   assert.equal(digest, '1de71134c795bba13fbd66968576d61f9af45369650f17e2ec3fba2a70863f47')
 })
 
+test('dated sorting puzzles require sorting a new mix of tower heights', () => {
+  const puzzles = Object.values(catalog.season.days).flatMap(set => set.puzzles).filter(puzzle => puzzle.category === 'Hidden sorting')
+  assert.ok(puzzles.length > 0)
+  for (const puzzle of puzzles) {
+    const answer = puzzle.choices.find(choice => choice.id === puzzle.correct).scene.items
+    const shown = puzzle.examples.map(example => example.output.items.join(','))
+    assert.equal(new Set(shown).size, shown.length, puzzle.id)
+    assert.ok(!shown.includes(answer.join(',')), puzzle.id)
+    assert.notDeepEqual(puzzle.input.items, answer, puzzle.id)
+  }
+})
+
+test('every scheduled warm-up has three clues, four choices, and one visual change', () => {
+  for (const set of Object.values(catalog.season.days)) {
+    const first = set.puzzles[0]
+    assert.equal(first.examples.length, 3, first.id)
+    assert.equal(first.choices.length, 4, first.id)
+    const fields = ['shape', 'color', 'dots']
+    const differences = ({ input, output }) => fields.filter(field => input[field] !== output[field])
+    const changed = differences(first.examples[0])
+    assert.equal(changed.length, 1, first.id)
+    for (const example of first.examples) assert.deepEqual(differences(example), changed, first.id)
+    const answer = first.choices.find(choice => choice.id === first.correct).scene
+    assert.deepEqual(differences({ input: first.input, output: answer }), changed, first.id)
+    assert.ok(set.puzzles.slice(1).every(puzzle => puzzle.choices.length >= 6), first.id)
+  }
+})
+
 const solved = (attempts = 1, hinted = false) => ({
   result: 'solved', hinted, attempts: Array.from({ length: attempts }, (_, index) => String(index)),
 })

@@ -1,7 +1,8 @@
 import { apply, candidates, isValidScene, matchingRules, sceneKey } from './rules.mjs'
 import { puzzleOutputKind, workshopDistance } from './workshop.mjs'
+import { validateEvidence } from './evidence.mjs'
 
-export const ruleLibraryVersion = 3
+export const ruleLibraryVersion = 5
 
 export function validateAnswer({ examples, input, rule }, library = candidates(input.kind)) {
   const kind = input.kind
@@ -73,29 +74,33 @@ function distractors(input, answer, library, id, total) {
 const difficulty = ['Warm-up', 'Observation', 'Reasoning', 'Advanced', 'Master puzzle']
 const presentationKinds = { badge: 'symbol', letters: 'row', blocks: 'count' }
 
-export function compilePuzzle(source, id, index) {
-  const { category, input, inputs, rule, correctSlot, hint, explanation, presentation } = source
+export function compilePuzzle(source, id, index, { requireEvidence = false } = {}) {
+  const { category, input, inputs, rule, correctSlot, hint, explanation, presentation, revision = 1, choiceCount } = source
   if (!category?.trim() || !hint?.trim() || !explanation?.trim()) throw new Error('Missing puzzle copy')
+  if (!Number.isInteger(revision) || revision < 1) throw new Error('Invalid puzzle revision')
   if (presentation && presentationKinds[presentation] !== input.kind) throw new Error('Invalid presentation')
   const examples = inputs.map(example => ({ input: example, output: apply(example, rule) }))
   const library = candidates(input.kind)
   const answer = validateAnswer({ examples, input, rule }, library)
-  const total = index < 3 ? 6 : 9
+  if (requireEvidence) validateEvidence(examples, input, rule)
+  const total = choiceCount ?? (index < 3 ? 6 : 9)
+  if (![4, 6, 9].includes(total)) throw new Error('Invalid answer choice count')
   if (!Number.isInteger(correctSlot) || correctSlot < 0 || correctSlot >= total) throw new Error('Invalid correct choice position')
 
   const options = distractors(input, answer, library, id, total - 1)
   options.splice(correctSlot, 0, answer)
   const choices = options.map((scene, index) => ({ id: String.fromCharCode(65 + index), scene }))
   return {
-    id, revision: 1, category, difficulty: difficulty[index], examples, input, choices,
+    id, revision, category, difficulty: difficulty[index], examples, input, choices,
     correct: choices[correctSlot].id, hint, explanation, ...(presentation ? { presentation } : {}),
   }
 }
 
-export function compileCatalog(sets, { requireVariety = false } = {}) {
+export function compileCatalog(sets, { requireVariety = false, requireEvidence = false } = {}) {
   const ids = new Set()
-  return sets.map(({ id, puzzles }) => {
+  return sets.map(({ id, puzzles, revision = 1 }) => {
     if (!/^[a-z][a-z0-9-]*$/.test(id) || ids.has(id)) throw new Error(`Invalid or duplicate set ID: ${id}`)
+    if (!Number.isInteger(revision) || revision < 1) throw new Error(`Invalid set revision in ${id}`)
     ids.add(id)
     if (puzzles.length !== 5 || new Set(puzzles.map(puzzle => puzzle.category)).size < 4) {
       throw new Error(`Expected five puzzles across at least four categories in ${id}`)
@@ -104,10 +109,10 @@ export function compileCatalog(sets, { requireVariety = false } = {}) {
       throw new Error(`Repeated visual format in ${id}`)
     }
     return {
-      id, revision: 1,
+      id, revision,
       puzzles: puzzles.map((source, i) => {
         const puzzleId = `${id}-${i + 1}`
-        try { return compilePuzzle(source, puzzleId, i) }
+        try { return compilePuzzle(source, puzzleId, i, { requireEvidence }) }
         catch (error) { throw new Error(`${puzzleId}: ${error.message}`, { cause: error }) }
       }),
     }

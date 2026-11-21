@@ -62,13 +62,24 @@ const shapeCycle = n => n === 1 ? 'circle → square → triangle → circle' : 
 
 const families = {
   object(day) {
-    const operation = ['color', 'dots', 'shape'][day % 3]
-    const step = day % 2 ? 1 : -1
+    const operation = ['dots', 'color', 'shape'][day % 3]
+    const step = day % 2 ? -1 : 1
+    const fixedShape = pick(shapes)
+    const fixedColor = pick(colors)
+    const parity = random(2)
+    const subject = { color: 'color', dots: 'dot count', shape: 'outline' }[operation]
     const phrase = operation === 'color' ? `Advance the color through this cycle: ${colorCycle(step)}.`
       : operation === 'shape' ? `Advance the outline through this cycle: ${shapeCycle(step)}.`
         : `${step === 1 ? 'Add' : 'Remove'} one dot.`
-    return pattern('Objects', 'symbol', rule(operation, step), 'Watch one property at a time to see which one changes.',
-      () => `${phrase} The other properties stay the same.`)
+    return pattern('Objects', 'symbol', rule(operation, step), `Compare the ${subject} in each pair.`,
+      () => `${phrase} The other properties stay the same.`, {
+        examples: 3, choiceCount: 4,
+        draw: () => scene('symbol', {
+          shape: operation === 'shape' ? pick(shapes) : fixedShape,
+          color: operation === 'color' ? pick(colors) : fixedColor,
+          dots: operation === 'dots' ? random(6) : pick([parity, parity + 2, parity + 4]),
+        }),
+      })
   },
   arrow() {
     const turn = pick([1, 2, 3])
@@ -77,8 +88,15 @@ const families = {
   },
   sort() {
     const direction = pick([-1, 1])
-    return pattern('Hidden sorting', 'towers', rule('sortHeight', direction), 'Compare the output towers by height.',
-      () => `Sort the towers ${direction === 1 ? 'from shortest to tallest' : 'from tallest to shortest'}, reading left to right.`, { allowUnchanged: true })
+    const operation = rule('sortHeight', direction)
+    return pattern('Hidden sorting', 'towers', operation, 'Compare the output towers by height.',
+      () => `Sort the towers ${direction === 1 ? 'from shortest to tallest' : 'from tallest to shortest'}, reading left to right.`, {
+        draw: () => scene('towers', { items: shuffle(range(6, 1)).slice(0, 4) }),
+        accept: (examples, input) => {
+          const outputs = [...examples, input].map(sample => sceneKey(apply(sample, operation)))
+          return new Set(outputs).size === outputs.length
+        },
+      })
   },
   path() {
     const violet = random(2)
@@ -132,11 +150,12 @@ const families = {
     const colorStep = pick([-1, 1])
     const numberStep = pick([-1, 1])
     const evenColor = random(2) === 0
+    const shape = pick(shapes)
     const operations = [rule('color', colorStep), rule('dots', numberStep)]
     return pattern('Conditions', 'symbol', rule('if', ['even'], ...evenColor ? operations : [...operations].reverse()),
       'Separate the examples into even numbers and odd numbers and compare the outputs.',
       () => `For ${evenColor ? 'even' : 'odd'} numbers, move through the color cycle ${colorCycle(colorStep)}. For ${evenColor ? 'odd' : 'even'} numbers, ${numberStep > 0 ? 'add one to' : 'subtract one from'} the number. The letter always stays the same.`,
-      { presentation: 'badge', accept: examples => new Set(examples.map(input => input.dots % 2)).size === 2 })
+      { presentation: 'badge', examples: 5, draw: () => ({ ...kinds.symbol(), shape }) })
   },
   overlay() {
     const [mode, text] = pick([
@@ -196,20 +215,21 @@ function draftPuzzle(family, day, index, id) {
     if (candidates.size <= take) continue
     const [input, ...inputs] = candidates.values()
     const output = apply(input, p.operation)
-    if (!p.allowUnchanged && sceneKey(input) === sceneKey(output)) continue
-    if (p.accept && !p.accept(inputs)) continue
+    if (sceneKey(input) === sceneKey(output)) continue
+    if (p.accept && !p.accept(inputs, input)) continue
     if (p.challenge && !p.challenge(input)) continue
     const fingerprint = JSON.stringify([p.operation, sceneKey(input)])
     if (used.has(fingerprint)) continue
     const source = { category: p.category, rule: p.operation, inputs, input,
-      correctSlot: random(index < 3 ? 6 : 9), hint: p.hint, explanation: p.explanation(input, output),
+      correctSlot: random(p.choiceCount ?? (index < 3 ? 6 : 9)), hint: p.hint, explanation: p.explanation(input, output),
+      ...(p.choiceCount ? { choiceCount: p.choiceCount } : {}),
       ...(p.presentation ? { presentation: p.presentation } : {}) }
     try {
-      compilePuzzle(source, id, index)
+      compilePuzzle(source, id, index, { requireEvidence: true })
       used.add(fingerprint)
       return source
     } catch (error) {
-      if (!/Ambiguous challenge|Too few distinct distractors/.test(error.message)) throw new Error(`${id}: ${JSON.stringify(p.operation)}: ${error.message}`, { cause: error })
+      if (!/Ambiguous challenge|Too few distinct distractors|Missing example evidence/.test(error.message)) throw new Error(`${id}: ${JSON.stringify(p.operation)}: ${error.message}`, { cause: error })
     }
   }
   throw new Error(`Could not draft a puzzle for ${id} (${family})`)

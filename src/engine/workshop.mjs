@@ -82,7 +82,7 @@ export const puzzleOutputKind = {
   equation: 'number',
 }
 
-function rotateMask(mask, turns) {
+export function rotateMask(mask, turns) {
   for (let turn = 0; turn < turns; turn += 1) {
     let next = 0
     for (let from = 0; from < 16; from += 1) {
@@ -105,13 +105,16 @@ function joinStrips(input, operation, offset, anchor, adjust) {
   return length >= 1 && length <= 12 && seam >= 1 && seam <= length ? { kind: 'strip', length, seam } : null
 }
 
-function followSignals(signals, turns, reverseAt) {
+export function tracePath(signals, turns, reverseAt) {
   let junction = 0
+  const encountered = []
   for (let level = 0; level < 3; level += 1) {
-    const turn = turns[signals[junction]] ^ ((reverseAt >> level) & 1)
+    const signal = signals[junction]
+    encountered.push(signal)
+    const turn = turns[signal] ^ ((reverseAt >> level) & 1)
     junction = junction * 2 + 1 + turn
   }
-  return { kind: 'exit', index: junction - 7 }
+  return { encountered, exit: junction - 7 }
 }
 
 export function applyWorkshop(input, op, [a, b, c, d]) {
@@ -119,7 +122,10 @@ export function applyWorkshop(input, op, [a, b, c, d]) {
     case 'reverseItems': return { ...input, items: [...input.items].reverse() }
     case 'shiftItems': return { ...input, items: shift(input.items, a) }
     case 'swapItems': return { ...input, items: exchange(input.items, a, b) }
-    case 'swapHeights': return { ...input, items: exchange(input.items, input.items.indexOf(a), input.items.indexOf(b)) }
+    case 'swapHeights': {
+      const heights = [...input.items].sort((left, right) => left - right)
+      return { ...input, items: exchange(input.items, input.items.indexOf(heights[a - 1]), input.items.indexOf(heights[b - 1])) }
+    }
     case 'sortHeight': return { ...input, items: [...input.items].sort((first, second) => a * (first - second)) }
     case 'recolorBeads': return { ...input, items: input.items.map((color, index) => {
       if (!(c & (1 << index))) return color
@@ -128,7 +134,7 @@ export function applyWorkshop(input, op, [a, b, c, d]) {
     case 'joinStrips': return joinStrips(input, a, b, c, d)
     case 'combineLayers': return { kind: 'mosaic', mask: blendTiles[a](rotateMask(input.left, b), rotateMask(input.right, c)) }
     case 'fixedRoute': return { kind: 'exit', index: a }
-    case 'followSignals': return followSignals(input.signals, [a, b], c)
+    case 'followSignals': return { kind: 'exit', index: tracePath(input.signals, [a, b], c).exit }
     default: throw new Error(`Unknown rule: ${op}`)
   }
 }
@@ -151,7 +157,7 @@ export function isWorkshopScene(scene) {
   const inRange = (value, min, max) => Number.isInteger(value) && value >= min && value <= max
   switch (scene.kind) {
     case 'towers': return Array.isArray(scene.items) && scene.items.length === 4
-      && new Set(scene.items).size === 4 && scene.items.every(item => inRange(item, 1, 4))
+      && new Set(scene.items).size === 4 && scene.items.every(item => inRange(item, 1, 6))
     case 'beads': return Array.isArray(scene.items) && scene.items.length === 3 && scene.items.every(color => beadColors.includes(color))
     case 'splice': return inRange(scene.left, 1, 6) && inRange(scene.right, 1, 6)
     case 'strip': return inRange(scene.length, 1, 12) && inRange(scene.seam, 1, scene.length)

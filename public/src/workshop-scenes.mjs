@@ -1,4 +1,3 @@
-const heights = ['shortest', 'second-shortest', 'second-tallest', 'tallest']
 const beadColors = {
   red: ['R', '#9f2748', '#d84868', '#ffe3eb'],
   blue: ['B', '#204c97', '#417cce', '#dceeff'],
@@ -7,16 +6,16 @@ const beadColors = {
 }
 
 function towers({ items }) {
-  const marks = items.map((rank, index) => {
+  const marks = items.map((height, index) => {
     const x = 9 + index * 25
-    const y = 52 - (rank * 9 + 7)
+    const y = 52 - (height * 6.5 + 7)
     return `<path d="M${x} ${y}h13v${52 - y}H${x}Z" fill="#396980"/>
       <path d="M${x + 13} ${y}l5-4v${52 - y}l-5 4Z" fill="#23485d"/>
       <path d="M${x} ${y}l5-4h13l-5 4Z" fill="#8bb5c6"/>
       <path d="M${x + 3} ${y + 4}v${46 - y}" stroke="#b6d3df" stroke-opacity=".7" stroke-linecap="round"/>`
   }).join('')
   return ['0 0 110 61', '<path d="M5 53h100" stroke="#b9c3be" stroke-width="1.2" stroke-linecap="round"/>' + marks,
-    `Tower heights from left to right: ${items.map(rank => heights[rank - 1]).join(', ')}`]
+    `Tower heights from left to right: ${items.join(', ')} units`]
 }
 
 const stripColors = {

@@ -8,9 +8,10 @@
   <meta property="og:description" content="Study the examples, infer the rule, and solve five daily puzzles.">
   <meta property="og:type" content="website">
   <meta name="twitter:card" content="summary">
-  <meta name="theme-color" content="#f7f7fb">
+  <meta name="theme-color" content="#0f1724">
   <title>Rulebreaker — Daily Visual Logic Puzzles</title>
   <link rel="icon" href="./mark.svg" type="image/svg+xml">
+  <link rel="preload" href="./fonts/barlow-condensed-bold.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="./style.css">
   <script type="module" src="./src/app.mjs"></script>
 </head>
@@ -47,14 +48,20 @@
     <footer id="playtest-footer" hidden><a href="./">Back to the daily challenge</a></footer>
   </main>
 
-  <dialog id="help" aria-labelledby="help-title">
+  <dialog id="help" aria-labelledby="help-title" aria-describedby="help-description">
     <div class="dialog-head"><h2 id="help-title">How to play</h2><form method="dialog"><button class="icon-button close" aria-label="Close">×</button></form></div>
-    <ol class="instructions">
-      <li>Compare the examples to find the rule.</li>
-      <li>Apply the rule to the challenge. You have two tries.</li>
-      <li>Earn two points for a first-try solve without a hint, or one point with a hint or retry.</li>
-    </ol>
-    <p>On shape cards, one bar means violet, two means teal, and three means amber.</p>
+    <p id="help-description">Find the rule in the examples, then choose the answer that follows it.</p>
+    <figure class="help-demo">
+      <div id="help-example"></div>
+      <figcaption>The rule turns the arrow a quarter turn clockwise.</figcaption>
+    </figure>
+    <p>You have two tries per puzzle. Use a hint if you get stuck.</p>
+    <details class="help-details">
+      <summary>Scoring and color marks</summary>
+      <p>Earn two points for a first-try solve without a hint, or one point with a hint or retry.</p>
+      <p>On shape cards, one bar means violet, two means teal, and three means amber.</p>
+    </details>
+    <form method="dialog" class="help-actions"><button class="primary" autofocus>Play</button></form>
   </dialog>
   <dialog id="stats" aria-labelledby="stats-title">
     <div class="dialog-head"><h2 id="stats-title">Your statistics</h2><form method="dialog"><button class="icon-button close" aria-label="Close">×</button></form></div>

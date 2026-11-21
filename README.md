@@ -18,6 +18,8 @@ The local game is at `http://localhost:4173`. Use `?playtest=workshop`, `?playte
 
 New challenges start at midnight in the player’s local time zone. Everyone playing on the same calendar date receives the same puzzles in the same order. Started challenges can be resumed after midnight. Finishing a set on its scheduled date counts toward streaks.
 
+A short worked example opens on the first visit and stays available from How to play. Scheduled warm-ups use three examples, four answer choices, and one visible change.
+
 A first-try solve without hints earns two points. A solve with a hint or a retry earns one. Each puzzle has two guesses. Players can reveal the answer at any time. The app derives statistics and achievements from saved daily rounds in the browser, and shared results omit answers.
 
 ## Prepare and review puzzle sets
@@ -26,7 +28,7 @@ A first-try solve without hints earns two points. A solve with a hint or a retry
 
 To extend the schedule, append dated authoring entries, run `npm run content`, and commit the resulting `public/content/daily.json`. Keep previously served IDs, versions, dates, and puzzle choices stable so saved progress still matches. The offline draft generator in `scripts/draft-season.mjs` demonstrates how to create candidates for editorial review.
 
-The compiler tests the intended rule against alternatives in its supported library, requires five distinct formats per new set, and emits stable choices. Before public launch, review the first month's examples, distractors, explanations, and difficulty progression in the browser. The current static build includes future puzzle assets in its catalog. A server-side delivery policy can keep future sets out of the browser until their scheduled date.
+The compiler tests the intended rule against alternatives in its supported library, requires five distinct formats per new set, and emits stable choices. It also checks that scheduled clues show the transitions the player needs, such as every link in a color cycle and both sides of a condition. Before public launch, review the first month's examples, distractors, explanations, and difficulty progression in the browser. The current static build includes future puzzle assets in its catalog. A server-side delivery policy can keep future sets out of the browser until their scheduled date.
 
 ## Deploy on Cloudflare Pages
 

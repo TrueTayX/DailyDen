@@ -42,6 +42,8 @@ const nextChallengeTimer = document.querySelector('#next-challenge-timer')
 const progressRegion = document.querySelector('#progress')
 const daySwitch = document.querySelector('#day-switch')
 const storageNotice = document.querySelector('#storage-notice')
+const helpDialog = document.querySelector('#help')
+const introKey = 'rulebreaker.intro.v1'
 const requestedPlaytest = new URLSearchParams(location.search).get('playtest')
 const playtestNames = new Map([
   ['variety', 'Puzzle formats playtest'], ['workshop', 'Workshop playtest'],
@@ -55,6 +57,9 @@ let storage
 try { storage = window.localStorage } catch { /* browser disabled storage */ }
 const store = createStore(storage, navigator.locks, playtest ? `${playtest}-playtest` : 'daily')
 const analytics = createAnalytics(storage, !playtestEnabled)
+let introSeen = false
+let introOpenedAutomatically = false
+try { introSeen = storage?.getItem(introKey) === 'seen' } catch { /* keep this session usable */ }
 
 if (playtest) {
   document.querySelector('#mode-label').textContent = playtestNames.get(playtest)
@@ -69,6 +74,38 @@ let pending = false
 let recordedVisit = false
 
 const hasStarted = record => record.rounds.some(round => round.hinted || round.result || round.attempts.length)
+
+function rememberIntro() {
+  introSeen = true
+  try { storage?.setItem(introKey, 'seen') } catch { /* keep this session usable */ }
+}
+
+function showFirstVisitHelp() {
+  if (!active || introSeen || document.querySelector('dialog[open]')) return
+  if (store.records().length) {
+    rememberIntro()
+    return
+  }
+  introOpenedAutomatically = true
+  helpDialog.showModal()
+}
+
+helpDialog.addEventListener('close', () => {
+  rememberIntro()
+  if (introOpenedAutomatically) {
+    introOpenedAutomatically = false
+    board.querySelector('.examples-panel h2')?.focus({ preventScroll: true })
+  }
+})
+
+const helpExample = document.querySelector('#help-example')
+for (const direction of [0, 2]) {
+  const example = node('div', 'help-example-row')
+  example.append(sceneBox({ kind: 'arrow', direction, flag: -1 }),
+    node('span', 'screen-reader', 'becomes'), icon('arrow'),
+    sceneBox({ kind: 'arrow', direction: direction + 1, flag: -1 }))
+  helpExample.append(example)
+}
 
 function gameLink(game) {
   const link = node('a', 'game-link')
@@ -302,7 +339,8 @@ function answerCard(option, puzzle, round, selected) {
 
 function answerForm(puzzle, round, selected) {
   const form = node('form', 'answers')
-  const choices = node('fieldset', `options options--${puzzle.presentation ?? puzzle.input.kind}`)
+  const compact = puzzle.choices.length === 4 ? ' options--four' : ''
+  const choices = node('fieldset', `options options--${puzzle.presentation ?? puzzle.input.kind}${compact}`)
   const label = round.result ? 'Answer choices' : 'Choose an answer'
   choices.append(node('legend', 'choices-label', label))
   for (const option of puzzle.choices) choices.append(answerCard(option, puzzle, round, selected))
@@ -511,6 +549,7 @@ async function load() {
       recordedVisit = true
     }
     selectDay(localDay())
+    showFirstVisitHelp()
   } catch {
     board.replaceChildren(
       node('p', 'notice', 'Today’s challenge couldn’t load.'),

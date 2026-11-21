@@ -5,6 +5,8 @@ const colors = {
   teal: ['#13746c', '#dff5ee', 2],
   amber: ['#985900', '#fff0cb', 3],
 }
+const diagramInk = '#315c87'
+const diagramFill = '#d6e5f4'
 
 const outlines = {
   circle: '<circle cx="0" cy="0" r="19"/>',
@@ -42,8 +44,8 @@ function symbol(scene) {
 function arrow(scene) {
   const side = scene.flag === -1 ? 'left' : 'right'
   const marks = `<g transform="translate(32 31) rotate(${scene.direction * 90})">
-    <path d="M0-21 13-5H5.5v21h-11V-5H-13Z" fill="#ede6fc" stroke="#6444c2" stroke-width="2.6" stroke-linejoin="round"/>
-    <path d="M${scene.flag * 5.5} 5h${scene.flag * 10}v8h${scene.flag * -10}" fill="#6444c2" stroke="#6444c2" stroke-width="1.6" stroke-linejoin="round"/>
+    <path d="M0-21 13-5H5.5v21h-11V-5H-13Z" fill="${diagramFill}" stroke="${diagramInk}" stroke-width="2.6" stroke-linejoin="round"/>
+    <path d="M${scene.flag * 5.5} 5h${scene.flag * 10}v8h${scene.flag * -10}" fill="${diagramInk}" stroke="${diagramInk}" stroke-width="1.6" stroke-linejoin="round"/>
   </g>`
   return ['0 0 64 62', marks, `Arrow pointing ${['up', 'right', 'down', 'left'][scene.direction]}, flag on its ${side} relative to its direction`]
 }
@@ -55,7 +57,7 @@ function count(scene) {
   const marks = Array.from({ length: scene.value }, (_, i) => {
     const row = Math.floor(i / columns)
     const rowLength = Math.min(columns, scene.value - row * columns)
-    return dot(38 + ((i % columns) - (rowLength - 1) / 2) * 10, 31 + (row - (rows - 1) / 2) * 10, 3.35, '#6444c2')
+    return dot(38 + ((i % columns) - (rowLength - 1) / 2) * 10, 31 + (row - (rows - 1) / 2) * 10, 3.35, diagramInk)
   }).join('')
   return ['0 0 76 62', marks, `${scene.value} ${scene.value === 1 ? 'dot' : 'dots'}`]
 }
@@ -74,7 +76,7 @@ function grid(scene) {
   const cell = ([x, y]) => [12 + x * 20, 12 + y * 20]
   const position = ([x, y]) => `row ${y + 1}, column ${x + 1}`
   const frame = '<rect x="2" y="2" width="60" height="60" rx="4" fill="white" fill-opacity=".64"/><path d="M22 2v60M42 2v60M2 22h60M2 42h60" stroke="#d8d2e8"/><rect x="2" y="2" width="60" height="60" rx="4" fill="none" stroke="#aca2c1" stroke-width="1.5"/>'
-  const marks = form('diamond', ...cell(scene.diamond), 0.32, '#e8defa', '#6444c2')
+  const marks = form('diamond', ...cell(scene.diamond), 0.32, diagramFill, diagramInk)
     + form('circle', ...cell(scene.circle), 0.32, '#fff0cb', '#985900')
   return ['0 0 64 64', frame + marks, `Diamond at ${position(scene.diamond)}. Circle at ${position(scene.circle)}.`]
 }

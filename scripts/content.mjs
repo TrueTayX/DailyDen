@@ -14,7 +14,7 @@ if (dates.length < 30 || timestamps.some((time, index) => !Number.isFinite(time)
   || (index > 0 && time - timestamps[index - 1] !== 86_400_000))) {
   throw new Error('The first season needs at least 30 consecutive dates in YYYY-MM-DD format')
 }
-const scheduled = compileCatalog(dated, { requireVariety: true })
+const scheduled = compileCatalog(dated, { requireVariety: true, requireEvidence: true })
 const catalog = {
   schema: 1, ruleLibraryVersion, epoch: '2026-11-20', sets,
   variety: { epoch: '2026-11-22', sets: varied },
