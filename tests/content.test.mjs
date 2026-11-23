@@ -5,6 +5,7 @@ import { authoredSets, variedSets } from '../content/authored.mjs'
 import { workshopSets } from '../content/workshop.mjs'
 import { compileCatalog, compilePuzzle, validateAnswer } from '../src/engine/compile.mjs'
 import { apply, sceneKey } from '../src/engine/rules.mjs'
+import { overlayAuditRules } from '../src/engine/workshop.mjs'
 
 const r = (op, ...args) => ({ op, args })
 const symbol = (shape, color, dots) => ({ kind: 'symbol', shape, color, dots })
@@ -121,4 +122,43 @@ test('overlay examples must distinguish canceling a shared tile from keeping it'
   const rule = r('combineLayers', 'exclusive', 0, 0)
   const disjoint = [overlay(0b0001, 0b0010), overlay(0b0100, 0b0001), overlay(0b0011, 0b1100)]
   assert.throws(() => validateAnswer({ examples: pairs(disjoint, rule), input: overlay(0b0011, 0b0101), rule }), /Ambiguous challenge/)
+})
+
+test('most overlay examples demonstrate the layer combinations required by the challenge', () => {
+  const schedule = JSON.parse(readFileSync(new URL('../content/season-one.json', import.meta.url), 'utf8'))
+  const { id, puzzles } = schedule.find(set => set.date === '2026-12-03')
+  const puzzle = puzzles[3]
+  const puzzleId = `${id}-4`
+  const original = {
+    ...puzzle,
+    inputs: [[8622, 26633], [16454, 2320], [18404, 8194], [19184, 12296]]
+      .map(([left, right]) => ({ kind: 'overlay', left, right })),
+  }
+  assert.doesNotThrow(() => compilePuzzle(original, puzzleId, 3))
+  assert.throws(() => compilePuzzle(original, puzzleId, 3, { requireEvidence: true }), /layer combinations together in most examples/)
+  const revised = compilePuzzle(puzzle, puzzleId, 3, { requireEvidence: true })
+  for (const { input: { left, right }, output } of revised.examples.slice(0, 3)) {
+    assert.ok(left & right)
+    assert.ok(left & ~right)
+    assert.ok(right & ~left)
+    assert.deepEqual(output, { kind: 'mosaic', mask: left ^ right })
+  }
+  assert.equal(revised.choices.length, 6)
+  for (const mode of ['union', 'overlap', 'leftOnly', 'rightOnly', 'agreement']) {
+    const wrongCombination = apply(puzzle.input, r('combineLayers', mode, 0, 0))
+    assert.ok(revised.choices.some(choice => choice.id !== revised.correct && sceneKey(choice.scene) === sceneKey(wrongCombination)))
+  }
+})
+
+test('the overlay audit considers mirrors and shifts with and without wrapping', () => {
+  const sample = { kind: 'overlay', left: 0x1, right: 0 }
+  for (const [alignment, mask] of [
+    [{ turn: 0, mirror: true }, 0x8],
+    [{ dx: -1, dy: 0, wrap: true }, 0x8],
+    [{ dx: -1, dy: 0, wrap: false }, 0],
+  ]) {
+    const rule = r('combineLayers', 'union', alignment, 0)
+    assert.ok(overlayAuditRules.some(candidate => JSON.stringify(candidate) === JSON.stringify(rule)))
+    assert.deepEqual(apply(sample, rule), { kind: 'mosaic', mask })
+  }
 })

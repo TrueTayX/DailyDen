@@ -34,10 +34,13 @@ export function challengeForDay(catalog, day) {
   return { ...rotation.sets[index], day, number }
 }
 
-export function challengeForPlaytest(catalog, key) {
+export function challengeForPlaytest(catalog, key, requestedDay) {
   if (key === 'first-month') {
-    const first = catalog.season && challengeForDay(catalog, catalog.season.startsOn)
-    return first ? { ...first, playtest: true } : null
+    const { season } = catalog
+    if (!season) return null
+    const day = Object.hasOwn(season.days, requestedDay) ? requestedDay : season.startsOn
+    const selected = challengeForDay(catalog, day)
+    return selected ? { ...selected, playtest: true } : null
   }
   const group = key === 'variety' ? catalog.variety : catalog.workshop
   const set = key === 'variety' ? group?.sets[0] : group?.sets.find(item => item.id === key)

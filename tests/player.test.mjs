@@ -99,6 +99,37 @@ test('workshop dates begin after the full variety rotation and preview links sta
   assert.equal(challengeForPlaytest(catalog, 'missing'), null)
 })
 
+test('the first-month playtest uses scheduled dates and defaults to the first set', () => {
+  const { startsOn, days } = catalog.season
+  const first = challengeForPlaytest(catalog, 'first-month')
+  assert.equal(first.day, startsOn)
+  for (const date of Object.keys(days)) {
+    assert.deepEqual(challengeForPlaytest(catalog, 'first-month', date), {
+      ...challengeForDay(catalog, date), playtest: true,
+    })
+  }
+  assert.deepEqual(challengeForPlaytest(catalog, 'first-month', catalog.epoch), first)
+  assert.deepEqual(challengeForPlaytest(catalog, 'first-month', '2026-02-30'), first)
+  assert.deepEqual(challengeForPlaytest(catalog, 'first-month', 'constructor'), first)
+  assert.equal(challengeForPlaytest(catalog, 'workshop', startsOn).id, 'workshop')
+})
+
+test('switching dates keeps playtest progress on its original set', async () => {
+  const first = challengeForPlaytest(catalog, 'first-month')
+  const lastDay = Object.keys(catalog.season.days).sort().at(-1)
+  const last = challengeForPlaytest(catalog, 'first-month', lastDay)
+  const storage = new Storage()
+  const preview = createStore(storage, null, 'first-month-playtest')
+  await preview.update(first, { type: 'hint', cursor: 0 }, today)
+  assert.equal(preview.get(last).rounds[0].hinted, false)
+  await preview.update(last, { type: 'reveal', cursor: 0 }, today)
+  const reloaded = createStore(storage, null, 'first-month-playtest')
+  assert.equal(reloaded.get(first).rounds[0].hinted, true)
+  assert.equal(reloaded.get(first).rounds[0].result, null)
+  assert.equal(reloaded.get(last).rounds[0].result, 'revealed')
+  assert.deepEqual(createStore(storage).records(), [])
+})
+
 test('a second tab cannot advance a round twice', async () => {
   const storage = new Storage()
   let queue = Promise.resolve()

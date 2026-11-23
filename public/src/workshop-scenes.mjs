@@ -49,14 +49,16 @@ function strip({ length, seam }) {
   return ['0 0 164 57', marks, `Joined strip, ${length} ${length === 1 ? 'tile' : 'tiles'}. Crosshatched join at tile ${seam} from the left.`]
 }
 
-function drawTiles(mask, x, y, accent) {
+function drawTiles(mask, x, y, accent, mark) {
   const frame = '<rect x="0" y="0" width="47" height="47" rx="4" fill="#e0e4ee" stroke="#9bacc2" stroke-width="1"/>'
   const tiles = Array.from({ length: 16 }, (_, index) => {
     const tx = 2 + (index % 4) * 11
     const ty = 2 + Math.floor(index / 4) * 11
     const filled = Boolean(mask & (1 << index))
+    const detail = mark === 'slash' ? `M${tx + 2.5} ${ty + 7.5}l5-5`
+      : mark === 'cross' ? `M${tx + 2.5} ${ty + 5}h5m-2.5-2.5v5` : `M${tx + 2} ${ty + 2}h5`
     return `<rect x="${tx}" y="${ty}" width="10" height="10" rx="1.2" fill="${filled ? accent : '#f8f9fc'}"/>`
-      + (filled ? `<path d="M${tx + 2} ${ty + 2}h5" stroke="#fff" stroke-opacity=".5" stroke-linecap="round"/>` : '')
+      + (filled ? `<path d="${detail}" stroke="#fff" stroke-opacity="${mark ? 1 : '.5'}" stroke-linecap="round"/>` : '')
   }).join('')
   return `<g transform="translate(${x} ${y})">${frame}${tiles}</g>`
 }
@@ -68,9 +70,10 @@ function filledTiles(mask) {
 }
 
 function overlay({ left, right }) {
-  const labels = '<g fill="#435572" font-size="11" font-weight="750" text-anchor="middle"><text x="31" y="13">A</text><text x="94" y="13">B</text></g>'
-  const marks = labels + drawTiles(left, 8, 18, '#5a5bb7') + drawTiles(right, 71, 18, '#a5692f')
-  return ['0 0 126 69', marks, `Layer A filled tiles: ${filledTiles(left)}. Layer B filled tiles: ${filledTiles(right)}.`]
+  const labels = '<g fill="#435572" font-size="11" font-weight="750" text-anchor="middle"><text x="31.5" y="13">A</text><text x="94.5" y="13">B</text></g>'
+  const marks = labels + drawTiles(left, 8, 18, '#5a5bb7', 'slash') + drawTiles(right, 71, 18, '#a5692f', 'cross')
+  // Center on the grids. The row's top padding leaves room for the labels above the viewBox.
+  return ['0 18 126 47', marks, `Layer A filled tiles: ${filledTiles(left)}. Layer B filled tiles: ${filledTiles(right)}.`]
 }
 
 function mosaic({ mask }) {
@@ -117,8 +120,7 @@ function path({ signals }) {
 function exit({ index }) {
   const name = letter(index)
   return ['0 0 52 48', `<rect x="3" y="4" width="46" height="40" rx="8" fill="#e9f1fa" stroke="#7b95b7"/>
-    <path d="M9 12h34" stroke="#a5bad0" stroke-linecap="round"/>
-    <text x="26" y="35" text-anchor="middle" fill="#284b75" font-size="24" font-weight="800">${name}</text>`, `Exit ${name}`]
+    <text x="26" y="24" text-anchor="middle" dominant-baseline="central" fill="#284b75" font-size="24" font-weight="800">${name}</text>`, `Exit ${name}`]
 }
 
 function beads({ items }) {

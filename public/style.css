@@ -31,11 +31,11 @@
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
 body { margin: 0; min-height: 100vh; }
-button, textarea { font: inherit; }
+button, select, textarea { font: inherit; }
 button { cursor: pointer; }
 button:disabled { cursor: default; }
 a { color: inherit; }
-button:focus-visible, a:focus-visible, textarea:focus-visible, .option:has(input:focus-visible) {
+button:focus-visible, a:focus-visible, select:focus-visible, textarea:focus-visible, .option:has(input:focus-visible) {
   outline: 3px solid var(--accent);
   outline-offset: 3px;
 }
@@ -117,6 +117,25 @@ h1 { margin-bottom: .4rem; font: 700 clamp(2.1rem, 5vw, 3.1rem)/1.06 var(--displ
   color: var(--ink);
 }
 
+.playtest-calendar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .45rem .65rem;
+  margin-bottom: 1rem;
+  font-size: .9rem;
+}
+.playtest-calendar label { color: var(--muted); }
+.playtest-calendar select {
+  min-height: 44px;
+  max-inline-size: 100%;
+  padding: .35rem .55rem;
+  border: 1px solid var(--line);
+  border-radius: .36rem;
+  background: var(--paper);
+  color: var(--ink);
+}
+
 .puzzle-layout {
   display: grid;
   grid-template-columns: minmax(0, .94fr) minmax(0, 1.16fr);
@@ -176,7 +195,7 @@ h3 { font-size: 1.05rem; }
 .scene--blocks svg { width: 78px; }
 .scene--towers svg, .scene--beads svg { width: 112px; height: auto; }
 .scene--splice svg, .scene--strip svg { width: 162px; height: auto; }
-.scene--overlay svg { width: 142px; height: auto; }
+.scene--overlay svg { width: 142px; height: auto; overflow: visible; }
 .scene--mosaic svg { width: 56px; height: auto; }
 .scene--path svg { width: 174px; height: auto; }
 .scene--exit svg { width: 52px; height: auto; }
@@ -186,7 +205,7 @@ h3 { font-size: 1.05rem; }
 .challenge-preview--wide { padding-inline: .5rem; }
 .pair--towers, .challenge-preview--towers { background: #e7e8de; border-color: #c6ccbd; }
 .pair--splice, .challenge-preview--splice { background: #dce9e5; border-color: #bdd2ca; }
-.pair--overlay, .challenge-preview--overlay { background: #e3e5ee; border-color: #c6cadd; }
+.pair--overlay, .challenge-preview--overlay { padding-block-start: 1.45rem; background: #e3e5ee; border-color: #c6cadd; }
 .pair--path, .challenge-preview--path { background: #e1ebf3; border-color: #c2d3e2; }
 .pair--beads, .challenge-preview--beads { background: #f0eadf; border-color: #dbd0bb; }
 
@@ -409,7 +428,9 @@ dialog { max-height: calc(100dvh - 2rem); overflow-y: auto; }
   .options--row, .options--letters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .options--towers, .options--beads, .options--splice { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .options--badge .option { padding: 1.3rem .55rem .35rem; }
-  .options--overlay .option { padding-inline: .55rem; }
+  .options--overlay, .options--grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .options--overlay .option, .options--grid .option { padding: 1.3rem .55rem .45rem; }
+  .options--overlay .scene--mosaic svg, .options--grid .scene--grid svg { width: 76px; height: auto; }
   .panel-heading { gap: .3rem; }
   .examples-list { gap: .35rem; }
   .puzzle-actions { display: grid; grid-template-columns: minmax(0, 1fr); }

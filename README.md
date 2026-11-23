@@ -12,7 +12,7 @@ npm test
 npm run build
 ```
 
-The local game is at `http://localhost:4173`. Use `?playtest=workshop`, `?playtest=routes`, `?playtest=variety`, or `?playtest=first-month` to open a fixed sample with separate progress. Build a private preview with `npm run build -- --playtest`. The standard `dist/` build serves only the daily game off localhost.
+The local game is at `http://localhost:4173`. Use `?playtest=workshop`, `?playtest=routes`, or `?playtest=variety` to open a fixed sample. Use `?playtest=first-month` to review the dated sets with the date picker. The URL follows the set you open, so a link such as `?playtest=first-month&date=2026-12-12` opens that set directly. Playtest progress is separate from daily progress. Build a private preview with `npm run build -- --playtest`. The standard `dist/` build serves only the daily game off localhost.
 
 ## Daily play
 

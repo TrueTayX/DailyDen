@@ -1,5 +1,5 @@
 import { apply, candidates, isValidScene, matchingRules, sceneKey } from './rules.mjs'
-import { puzzleOutputKind, workshopDistance } from './workshop.mjs'
+import { overlayAuditRules, puzzleOutputKind, workshopDistance } from './workshop.mjs'
 import { validateEvidence } from './evidence.mjs'
 
 export const ruleLibraryVersion = 5
@@ -53,15 +53,23 @@ function hash(value) {
   return result >>> 0
 }
 
-function distractors(input, answer, library, id, total) {
+function distractors(input, answer, library, id, total, overlayRule) {
   const options = new Map()
   const answerKey = sceneKey(answer)
   const inputKey = sceneKey(input)
   for (const rule of library) {
     const option = apply(input, rule)
     const key = sceneKey(option)
-    if (!option || key === answerKey || options.has(key)) continue
-    options.set(key, { option, rank: distance(answer, option) + Number(key === inputKey) / 2, order: hash(id + key) })
+    if (!option || key === answerKey) continue
+    let rank = distance(answer, option) + Number(key === inputKey) / 2
+    if (overlayRule) {
+      const [mode, left, right] = overlayRule.args
+      const [otherMode, otherLeft, otherRight] = rule.args
+      // Prefer the wrong combination of aligned layers, then the right combination on misaligned layers.
+      const priority = left === otherLeft && right === otherRight ? 0 : mode === otherMode ? 1 : 2
+      rank += priority * 20
+    }
+    if (!options.has(key) || rank < options.get(key).rank) options.set(key, { option, rank, order: hash(id + key) })
   }
   if (options.size < total) throw new Error('Too few distinct distractors')
   return [...options.values()]
@@ -81,13 +89,14 @@ export function compilePuzzle(source, id, index, { requireEvidence = false } = {
   if (presentation && presentationKinds[presentation] !== input.kind) throw new Error('Invalid presentation')
   const examples = inputs.map(example => ({ input: example, output: apply(example, rule) }))
   const library = candidates(input.kind)
-  const answer = validateAnswer({ examples, input, rule }, library)
+  const scheduledOverlay = requireEvidence && rule.op === 'combineLayers'
+  const answer = validateAnswer({ examples, input, rule }, scheduledOverlay ? overlayAuditRules : library)
   if (requireEvidence) validateEvidence(examples, input, rule)
   const total = choiceCount ?? (index < 3 ? 6 : 9)
   if (![4, 6, 9].includes(total)) throw new Error('Invalid answer choice count')
   if (!Number.isInteger(correctSlot) || correctSlot < 0 || correctSlot >= total) throw new Error('Invalid correct choice position')
 
-  const options = distractors(input, answer, library, id, total - 1)
+  const options = distractors(input, answer, library, id, total - 1, scheduledOverlay ? rule : null)
   options.splice(correctSlot, 0, answer)
   const choices = options.map((scene, index) => ({ id: String.fromCharCode(65 + index), scene }))
   return {

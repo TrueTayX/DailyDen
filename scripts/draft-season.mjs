@@ -168,7 +168,7 @@ const families = {
     return pattern('Overlay and subtraction', 'overlay', rule('combineLayers', mode, turn, 0),
       turn ? 'Line up the layers after turning layer A a quarter turn clockwise. Look at where their filled tiles meet.'
         : 'Compare positions that are filled on both layers with positions filled on just one.',
-      () => `${turn ? 'Turn layer A a quarter turn clockwise. ' : ''}${text}`)
+      () => `${turn ? 'Turn layer A a quarter turn clockwise. ' : ''}${text}`, { choiceCount: 6 })
   },
   relation() {
     const step = pick([-1, 1])

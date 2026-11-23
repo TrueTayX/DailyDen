@@ -18,7 +18,7 @@ function wrapAxes(scene, markers, dx, dy) {
 function layerStates(scene, leftTurns, rightTurns) {
   const left = rotateMask(scene.left, leftTurns)
   const right = rotateMask(scene.right, rightTurns)
-  return Array.from({ length: 16 }, (_, index) => ((left >> index) & 1) * 2 + ((right >> index) & 1))
+  return new Set(Array.from({ length: 16 }, (_, index) => ((left >> index) & 1) * 2 + ((right >> index) & 1)))
 }
 
 function independentWeights(samples, input) {
@@ -104,9 +104,10 @@ function checkStep(samples, input, { op, args }) {
       break
     case 'combineLayers':
       if (input) {
-        const seen = new Set(samples.flatMap(sample => layerStates(sample, b, c)))
-        requireExample(layerStates(input, b, c).every(state => seen.has(state)),
-          'show each layer overlap or gap that is used in the challenge')
+        const needed = layerStates(input, b, c)
+        const complete = samples.filter(sample => needed.isSubsetOf(layerStates(sample, b, c)))
+        requireExample(complete.length > samples.length / 2,
+          'show all the challenge’s layer combinations together in most examples')
       }
       break
     case 'weights':

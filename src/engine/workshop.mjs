@@ -57,6 +57,16 @@ const blendTiles = {
 const overlayRules = Object.keys(blendTiles).flatMap(operation =>
   positions.flatMap(left => positions.map(right => rule('combineLayers', operation, left, right))))
 
+// Check reflections and one-cell shifts as alternate readings of the examples.
+const alignments = [
+  ...positions,
+  ...positions.map(turn => ({ turn, mirror: true })),
+  ...[-1, 0, 1].flatMap(dx => [-1, 0, 1].filter(dy => dx || dy)
+    .flatMap(dy => [false, true].map(wrap => ({ dx, dy, wrap })))),
+]
+export const overlayAuditRules = Object.keys(blendTiles).flatMap(operation =>
+  alignments.flatMap(left => alignments.map(right => rule('combineLayers', operation, left, right))))
+
 const pathRules = [
   ...range(8).map(exit => rule('fixedRoute', exit)),
   ...range(2).flatMap(violet => range(2).flatMap(amber =>
@@ -97,6 +107,24 @@ export function rotateMask(mask, turns) {
   return mask
 }
 
+function alignMask(mask, alignment) {
+  if (typeof alignment === 'number') return rotateMask(mask, alignment)
+  const { turn, mirror, dx = 0, dy = 0, wrap } = alignment
+  if (mirror) mask = rotateMask(mask, turn)
+  let aligned = 0
+  for (let from = 0; from < 16; from += 1) {
+    if (!(mask & (1 << from))) continue
+    let x = (mirror ? 3 - from % 4 : from % 4) + dx
+    let y = Math.floor(from / 4) + dy
+    if (wrap) {
+      x = (x + 4) % 4
+      y = (y + 4) % 4
+    }
+    if (x >= 0 && x < 4 && y >= 0 && y < 4) aligned |= 1 << (4 * y + x)
+  }
+  return aligned
+}
+
 function joinStrips(input, operation, offset, anchor, adjust) {
   const { left, right } = input
   const lengths = { sum: left + right, larger: Math.max(left, right), smaller: Math.min(left, right), difference: Math.abs(left - right) }
@@ -132,7 +160,7 @@ export function applyWorkshop(input, op, [a, b, c, d]) {
       return color === a ? b : color === b ? a : color
     }) }
     case 'joinStrips': return joinStrips(input, a, b, c, d)
-    case 'combineLayers': return { kind: 'mosaic', mask: blendTiles[a](rotateMask(input.left, b), rotateMask(input.right, c)) }
+    case 'combineLayers': return { kind: 'mosaic', mask: blendTiles[a](alignMask(input.left, b), alignMask(input.right, c)) }
     case 'fixedRoute': return { kind: 'exit', index: a }
     case 'followSignals': return { kind: 'exit', index: tracePath(input.signals, [a, b], c).exit }
     default: throw new Error(`Unknown rule: ${op}`)

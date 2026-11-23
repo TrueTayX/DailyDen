@@ -18,7 +18,7 @@ const outlines = {
 
 const pips = [
   [], [[0, 0]], [[-5, 0], [5, 0]], [[-5, 3], [5, 3], [0, -5]],
-  [[-4, -4], [4, -4], [-5, 5], [5, 5]], [[-5, -5], [5, -5], [0, 0], [-6, 6], [6, 6]],
+  [[-5, -5], [5, -5], [-5, 5], [5, 5]], [[-5, -5], [5, -5], [0, 0], [-5, 5], [5, 5]],
 ]
 
 function form(shape, x, y, scale, fill, stroke) {
@@ -31,8 +31,7 @@ function dot(x, y, radius, fill) {
 
 function symbol(scene) {
   const [ink, fill, bars] = colors[scene.color]
-  const y = scene.shape === 'triangle' ? 27 : 25
-  const pipMarks = pips[scene.dots].map(([dx, dy]) => dot(32 + dx, y + dy, 2.15, ink)).join('')
+  const pipMarks = pips[scene.dots].map(([dx, dy]) => dot(32 + dx, 26 + dy, 2.15, ink)).join('')
   const colorMarks = Array.from({ length: bars }, (_, i) => {
     const x = 32 + (i - (bars - 1) / 2) * 5
     return `<path d="M${x} 51v4" stroke="${ink}" stroke-width="2.2" stroke-linecap="round"/>`

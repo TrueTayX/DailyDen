@@ -43,6 +43,8 @@ const progressRegion = document.querySelector('#progress')
 const daySwitch = document.querySelector('#day-switch')
 const storageNotice = document.querySelector('#storage-notice')
 const helpDialog = document.querySelector('#help')
+const playtestCalendar = document.querySelector('#playtest-calendar')
+const playtestDate = document.querySelector('#playtest-date')
 const introKey = 'rulebreaker.intro.v1'
 const requestedPlaytest = new URLSearchParams(location.search).get('playtest')
 const playtestNames = new Map([
@@ -74,6 +76,28 @@ let pending = false
 let recordedVisit = false
 
 const hasStarted = record => record.rounds.some(round => round.hinted || round.result || round.attempts.length)
+const requestedPlaytestDay = () => new URLSearchParams(location.search).get('date')
+
+function playtestUrl(day) {
+  const link = new URL('./', location.href)
+  link.searchParams.set('playtest', playtest)
+  if (playtest === 'first-month' && day !== catalog.season.startsOn) link.searchParams.set('date', day)
+  return link
+}
+
+if (playtest === 'first-month') {
+  playtestCalendar.addEventListener('submit', event => {
+    event.preventDefault()
+    const day = playtestDate.value
+    if (day === active.day) return
+    history.pushState(null, '', playtestUrl(day))
+    selectDay(day)
+    board.querySelector('h2')?.focus()
+  })
+  window.addEventListener('popstate', () => {
+    if (catalog?.season) selectDay(requestedPlaytestDay())
+  })
+}
 
 function rememberIntro() {
   introSeen = true
@@ -154,7 +178,7 @@ function metric(label, value) {
 }
 
 function selectDay(day) {
-  active = playtest ? challengeForPlaytest(catalog, playtest) : challengeForDay(catalog, day)
+  active = playtest ? challengeForPlaytest(catalog, playtest, day) : challengeForDay(catalog, day)
   status.textContent = ''
   if (!active) {
     if (playtest) throw new Error('Playtest set is unavailable')
@@ -167,6 +191,10 @@ function selectDay(day) {
       button('Check again', 'text-button', load))
     board.replaceChildren(message)
     return
+  }
+  if (playtest === 'first-month') {
+    showDate(active.day)
+    playtestDate.value = active.day
   }
   progress = store.get(active)
   render()
@@ -455,9 +483,7 @@ function render(selected) {
 }
 
 async function share(actions) {
-  const link = new URL('./', location.href)
-  if (playtest) link.searchParams.set('playtest', playtest)
-  else link.searchParams.set('ref', 'share')
+  const link = playtest ? playtestUrl(active.day) : new URL('./?ref=share', location.href)
   const text = shareText(active, progress, link.href)
   try {
     if (navigator.share) {
@@ -548,7 +574,12 @@ async function load() {
       if (new URLSearchParams(location.search).get('ref') === 'share') analytics.record('shared_visit', localDay())
       recordedVisit = true
     }
-    selectDay(localDay())
+    if (playtest === 'first-month' && catalog.season) {
+      const options = Object.keys(catalog.season.days).sort().map(day => new Option(formatDay(day), day))
+      playtestDate.replaceChildren(...options)
+    }
+    selectDay(playtest ? requestedPlaytestDay() : localDay())
+    playtestCalendar.hidden = playtest !== 'first-month'
     showFirstVisitHelp()
   } catch {
     board.replaceChildren(
