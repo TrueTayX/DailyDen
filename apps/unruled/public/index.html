@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Find the hidden rule in five daily visual logic puzzles.">
+  <meta property="og:title" content="Rulebreaker — Daily Visual Logic Puzzles">
+  <meta property="og:description" content="Study the examples, infer the rule, and solve five daily puzzles.">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary">
+  <meta name="theme-color" content="#0f1724">
+  <title>Rulebreaker — Daily Visual Logic Puzzles</title>
+  <link rel="icon" href="./mark.svg" type="image/svg+xml">
+  <link rel="preload" href="./fonts/barlow-condensed-bold.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="./style.css">
+  <script type="module" src="./src/app.mjs"></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="./" aria-label="Rulebreaker home"><img src="./mark.svg" alt="" width="37" height="37">Rulebreaker</a>
+      <nav class="header-actions" aria-label="Game options">
+        <button class="icon-button" type="button" data-dialog="help" aria-label="How to play" title="How to play"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.7 9.2c.2-1.3 1.2-2 2.4-2 1.5 0 2.4.9 2.4 2.1 0 1.8-2.5 2-2.5 3.7m0 3.4h.01"/></svg></button>
+        <button class="icon-button" type="button" data-dialog="stats" aria-label="Statistics" title="Statistics"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5v15h16M8 15v-3m5 3V8m5 7V4"/></svg></button>
+        <button class="games-button" type="button" data-dialog="games" aria-label="Games" title="Games"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/></svg><span class="games-label">Games</span></button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="shell">
+    <div class="play-header">
+      <div>
+        <h1 id="mode-label">Daily challenge</h1>
+        <time id="date" class="challenge-date" hidden></time>
+      </div>
+      <section id="progress" class="progress" aria-label="Challenge progress" hidden></section>
+    </div>
+
+    <form id="playtest-calendar" class="playtest-calendar" hidden>
+      <label for="playtest-date">Puzzle date</label>
+      <select id="playtest-date" name="date"></select>
+      <button class="hint-button" type="submit">Open set</button>
+    </form>
+    <div id="day-switch" class="notice" hidden></div>
+    <p id="storage-notice" class="notice" hidden>Progress is saved for this tab while it stays open.</p>
+    <div id="board" aria-busy="true"><p>Loading puzzle…</p></div>
+    <div id="announcement" class="screen-reader" role="status"></div>
+
+    <footer id="daily-footer">
+      <span class="next-day" id="next-challenge-timer"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Next challenge in <time id="countdown">--:--:--</time></span>
+      <a href="./privacy.html">Privacy</a>
+    </footer>
+    <footer id="playtest-footer" hidden><a href="./">Back to the daily challenge</a></footer>
+  </main>
+
+  <dialog id="help" aria-labelledby="help-title" aria-describedby="help-description">
+    <div class="dialog-head"><h2 id="help-title">How to play</h2><form method="dialog"><button class="icon-button close" aria-label="Close">×</button></form></div>
+    <p id="help-description">Find the rule in the examples, then choose the answer that follows it.</p>
+    <figure class="help-demo">
+      <div id="help-example"></div>
+      <figcaption>The rule turns the arrow a quarter turn clockwise.</figcaption>
+    </figure>
+    <p>You have two tries per puzzle. Use a hint if you get stuck.</p>
+    <details class="help-details">
+      <summary>Scoring and color marks</summary>
+      <p>Earn two points for a first-try solve without a hint, or one point with a hint or retry.</p>
+      <p>On shape cards, one bar means violet, two means teal, and three means amber.</p>
+    </details>
+    <form method="dialog" class="help-actions"><button class="primary" autofocus>Play</button></form>
+  </dialog>
+  <dialog id="stats" aria-labelledby="stats-title">
+    <div class="dialog-head"><h2 id="stats-title">Your statistics</h2><form method="dialog"><button class="icon-button close" aria-label="Close">×</button></form></div>
+    <dl id="stats-data" class="metrics"></dl>
+    <h3 class="achievements-heading">Achievements</h3>
+    <ul id="achievements" class="achievements"></ul>
+  </dialog>
+  <dialog id="games" aria-labelledby="games-title">
+    <div class="dialog-head"><h2 id="games-title">More games</h2><form method="dialog"><button class="icon-button close" aria-label="Close">×</button></form></div>
+    <div id="games-list" class="games-grid"></div>
+  </dialog>
+  <noscript><p class="shell">Enable JavaScript to play Rulebreaker.</p></noscript>
+</body>
+</html>
