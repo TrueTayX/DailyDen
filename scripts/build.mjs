@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process'
-import { cp, mkdtemp, rename, rm } from 'node:fs/promises'
+import { cp, mkdtemp, readFile, rename, rm, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -13,6 +13,11 @@ const staging = await mkdtemp(join(root, '.daily-den-build-'))
 try {
   await cp(join(root, 'apps/home'), staging, { recursive: true })
   await cp(join(root, 'apps/unruled/dist'), join(staging, 'unruled'), { recursive: true })
+  // Cloudflare Pages reads _headers only at the upload root.
+  const gameHeaders = join(staging, 'unruled', '_headers')
+  const headers = await readFile(gameHeaders, 'utf8')
+  await writeFile(join(staging, '_headers'), headers.replace(/^\//gm, '/unruled/'))
+  await rm(gameHeaders)
   await rm(output, { recursive: true, force: true })
   await rename(staging, output)
   console.log('Built Daily Den and /unruled/ in dist/.')

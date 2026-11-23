@@ -12,3 +12,11 @@ jobs:
           node-version: 22
       - run: npm test
       - run: npm run build
+      - name: Check that dist matches the source
+        run: |
+          changes="$(git status --short --untracked-files=all -- dist/)"
+          if [ -n "$changes" ]; then
+            printf '%s\n' "$changes"
+            echo "Run npm run build and commit the updated dist/."
+            exit 1
+          fi
