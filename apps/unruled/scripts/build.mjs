@@ -18,7 +18,7 @@ try {
     html = html.replace('<html lang="en">', '<html lang="en" data-playtest="true">')
       .replace('<title>', '<meta name="robots" content="noindex, nofollow">\n  <title>')
   }
-  if (analytics) html = html.replace('<title>', '<meta name="rulebreaker-analytics" content="/api/events">\n  <title>')
+  if (analytics) html = html.replace('<title>', '<meta name="rulebreaker-analytics" content="./api/events">\n  <title>')
   await writeFile(index, html)
   await rm(dist, { recursive: true, force: true })
   await rename(temporary, dist)

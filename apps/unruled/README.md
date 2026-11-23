@@ -1,6 +1,6 @@
-# Rulebreaker
+# Unruled
 
-Rulebreaker is a daily visual logic game. Each daily challenge has five puzzles with distinct visual formats. Players infer the rule from examples, choose an output, and see the explanation.
+Unruled is a daily visual logic game. Each daily challenge has five puzzles with distinct visual formats. Players infer the rule from examples, choose an output, and see the explanation.
 
 ## Develop
 
@@ -32,7 +32,7 @@ The compiler tests the intended rule against alternatives in its supported libra
 
 ## Deploy on Cloudflare Pages
 
-Set the build command to `npm run build` and the output directory to `dist`. Configure the game domain in Pages when it is chosen. The links in `public/src/games.mjs` are shared by the header and result screen.
+See the [Daily Den deployment instructions](../../README.md#cloudflare-pages) for the combined build and `/unruled/` route. The links in `public/src/games.mjs` are shared by the header and result screen.
 
 First-party analytics is opt-in. To enable it, apply `migrations/0001_analytics.sql` to a Rulebreaker D1 database, bind it to Pages Functions as `RULEBREAKER_ANALYTICS`, and set the build command to `npm run build -- --analytics`. The endpoint accepts small same-origin batches and stores the random browser ID and an allowlisted set of gameplay fields. It omits guess selections and full referrer URLs. The client and endpoint respect Do Not Track and Global Privacy Control.
 

@@ -1,0 +1,12 @@
+{
+  "name": "daily-den",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "npm --prefix apps/unruled test"
+  }
+}

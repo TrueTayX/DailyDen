@@ -2,10 +2,23 @@
 
 Daily Den is a home for daily puzzle games at [dailyden.games](https://dailyden.games/).
 
-## Homepage
+- `apps/home/` is the homepage.
+- `apps/unruled/` contains Unruled, previously called Rulebreaker, including its source, dated puzzle catalog, tests, and analytics migration.
+- Lineup.Day opens the existing site at [lineup.day](https://lineup.day/).
 
-The static site lives in `apps/home/`. Open `apps/home/index.html` in a browser for a local preview. No package installation or build command is required.
+## Run checks and build
 
-For Cloudflare Pages, connect this repository, leave the build command blank, and set the build output directory to `apps/home` relative to the repository root. For a direct upload, upload the contents of `apps/home`.
+Use Node.js 22 or later. There are no npm dependencies to install.
 
-Lineup.Day opens the existing site at [lineup.day](https://lineup.day/). Unruled has a coming-soon card until its game is available on Daily Den.
+```sh
+npm test
+npm run build
+```
+
+Serve `dist/` with a static HTTP server to try the homepage and the game together. The homepage is at `/` and the game is at `/unruled/`. To work on the game by itself, run `npm --prefix apps/unruled run dev`.
+
+## Cloudflare Pages
+
+Connect this repository, set the build command to `npm run build`, and set the build output directory to `dist`. Attach `dailyden.games` to that Pages project. Analytics is off by default. To enable it, apply `apps/unruled/migrations/0001_analytics.sql` to a D1 database, bind it as `RULEBREAKER_ANALYTICS`, and set the Pages build command to `npm run build -- --analytics`. The Unruled client sends events to `/unruled/api/events`.
+
+Unruled keeps its existing storage keys. Browser saves from a different origin, such as the private playtest, stay with that origin.

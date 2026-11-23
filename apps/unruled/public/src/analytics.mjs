@@ -1,6 +1,6 @@
 export function createAnalytics(storage, enabled) {
   const endpoint = document.querySelector('meta[name="rulebreaker-analytics"]')?.content
-  if (!enabled || endpoint !== '/api/events' || navigator.globalPrivacyControl || navigator.doNotTrack === '1'
+  if (!enabled || endpoint !== './api/events' || navigator.globalPrivacyControl || navigator.doNotTrack === '1'
     || window.doNotTrack === '1' || !globalThis.crypto?.randomUUID) return { record() {} }
 
   let visitor = crypto.randomUUID()

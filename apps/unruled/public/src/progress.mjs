@@ -139,7 +139,7 @@ export function shareText(challenge, progress, url) {
   const solved = progress.rounds.filter(round => round.result === 'solved').length
   const points = progress.rounds.reduce((sum, round) => sum + score(round), 0)
   return [
-    challenge.playtest ? 'Rulebreaker playtest' : `Rulebreaker #${challenge.number}`,
+    challenge.playtest ? 'Unruled playtest' : `Unruled #${challenge.number}`,
     progress.rounds.map(round => tiles[score(round)]).join(''),
     `${solved}/${challenge.puzzles.length} solved · ${points}/${challenge.puzzles.length * 2} points`,
     url,

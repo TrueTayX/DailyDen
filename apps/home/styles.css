@@ -136,11 +136,10 @@ h1, h2, h3, p { margin: 0; }
 .game-copy { display: flex; flex: 1; align-items: flex-start; flex-direction: column; padding: clamp(1.1rem, 3vw, 1.65rem); }
 .game h3 { font: 700 clamp(1.65rem, 3.8vw, 2.2rem)/1.08 Georgia, serif; }
 .game h3 + p { margin: .55rem 0 1.15rem; color: #454960; line-height: 1.55; }
-.play, .availability { margin-top: auto; min-height: 2.75rem; display: inline-flex; align-items: center; gap: .65rem; font-size: .95rem; font-weight: 700; }
+.play { margin-top: auto; min-height: 2.75rem; display: inline-flex; align-items: center; gap: .65rem; font-size: .95rem; font-weight: 700; }
 .play { padding: .55rem .8rem; background: var(--ink); color: #fffdf6; text-decoration: none; }
 .play:hover { background: #3a436b; text-decoration: underline; }
 .play:focus-visible { outline: 3px solid #594d99; outline-offset: 4px; }
-.availability { color: #54536c; }
 
 @media (max-width: 39rem) {
   .page { width: calc(100% - 1.75rem); margin: 1.25rem auto 2rem; }
