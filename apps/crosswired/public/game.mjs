@@ -1,5 +1,6 @@
 import { HINT_COST, RATINGS, RATING_THRESHOLDS } from './config.mjs'
-import { asMask, asBits } from './engine.mjs'
+import { asMask, asBits, hasBit } from './engine.mjs'
+import { solve } from './solver.mjs'
 
 export const freshRound = puzzle => ({
   id: puzzle.id, bits: puzzle.start, presses: 0, restarts: 0, hints: 0, assisted: false, recent: [],
@@ -11,19 +12,27 @@ export function restoreRound(puzzle, round) {
     || typeof round.assisted !== 'boolean' || !Array.isArray(round.recent)
     || round.recent.length > 3
     || !round.recent.every(cell => Number.isInteger(cell) && cell >= 0 && cell < puzzle.size ** 2)) return freshRound(puzzle)
+  if (round.suggestion != null && (!Number.isInteger(round.suggestion) || round.suggestion < 0
+    || round.suggestion >= puzzle.size ** 2)) return { ...round, suggestion: null }
   return round
 }
 
 export function applyMove(round, puzzle, columns, type, cell) {
   if (round.bits === puzzle.goal.bits) return round
-  if (type === 'restart') return { ...round, bits: puzzle.start, restarts: round.restarts + 1 }
+  if (type === 'restart') return { ...round, bits: puzzle.start, restarts: round.restarts + 1, suggestion: null }
+  if (type === 'hint') {
+    if (round.suggestion != null) return round
+    const solution = solve(columns, asMask(round.bits) ^ asMask(puzzle.goal.bits))
+    if (!solution?.presses) return round
+    const suggestion = columns.findIndex((_, index) => hasBit(solution.presses, index))
+    return { ...round, presses: round.presses + HINT_COST, hints: round.hints + 1, suggestion }
+  }
   const flip = columns[cell]
   if (flip === null || flip === undefined) return round
-  if (type === 'hint') return { ...round, presses: round.presses + HINT_COST, hints: round.hints + 1 }
   if (type !== 'press') return round
   return {
     ...round, bits: asBits(asMask(round.bits) ^ flip, puzzle.size), presses: round.presses + 1,
-    recent: [cell, ...round.recent].slice(0, 3),
+    recent: [cell, ...round.recent].slice(0, 3), suggestion: null,
   }
 }
 

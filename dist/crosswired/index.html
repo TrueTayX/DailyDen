@@ -43,11 +43,11 @@
             <span id="goal-name"></span>
           </div>
         </div>
-        <p id="result" class="result" tabindex="-1"></p>
+        <p id="result" class="result" hidden></p>
         <p id="announcement" class="sr-only" role="status" aria-atomic="true"></p>
         <div class="actions">
           <button id="restart" type="button" title="Restore the starting lights and keep the press count">Restart</button>
-          <button id="hint" type="button">Hint (+2)</button>
+          <button id="hint" type="button">Hint <span id="hint-cost">· costs 2 presses</span></button>
           <button id="next" type="button" class="primary" hidden>Next puzzle</button>
         </div>
       </section>
@@ -55,11 +55,13 @@
         <h2>Last 3 presses</h2>
         <p id="empty-history">Flipped lights will appear here.</p>
         <ol id="history" class="history" aria-label="Recent presses"></ol>
-        <fieldset class="settings">
-          <legend>Display options</legend>
-          <label><input id="assist" type="checkbox"> Outline cells that still differ</label>
-          <label><input id="contrast" type="checkbox"> High contrast</label>
-        </fieldset>
+        <div class="settings-panel">
+          <fieldset class="settings">
+            <legend>Display options</legend>
+            <label><input id="assist" type="checkbox"> Outline cells that still differ</label>
+            <label><input id="contrast" type="checkbox"> High contrast</label>
+          </fieldset>
+        </div>
       </aside>
     </div>
     <section id="complete" class="console results" hidden aria-labelledby="complete-heading">
@@ -79,7 +81,7 @@
     <ol>
       <li>Press a light and watch which lights flip.</li>
       <li>Match the board to the goal picture. Aim for par, the fewest possible presses.</li>
-      <li>Finish all four puzzles to complete the day. Restart keeps your press count, and a hint adds two presses.</li>
+      <li>Finish all four puzzles to complete the day. Restart keeps your press count. A hint suggests a move and costs two presses.</li>
     </ol>
     <form method="dialog"><button class="primary">Play</button></form>
   </dialog>

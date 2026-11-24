@@ -4,7 +4,8 @@ import { bit, applyPresses, asBits, asMask, flipSets, stampMask } from '../publi
 import { STAMPS } from '../public/stamps.mjs'
 import { applyMove, freshRound, rating, restoreRound, shareResult } from '../public/game.mjs'
 import { generateCalendar } from '../scripts/calendar.mjs'
-import { independentPar, solve } from '../scripts/solver.mjs'
+import { solve } from '../public/solver.mjs'
+import { independentPar } from '../scripts/independent-par.mjs'
 import { dayKey, dayStreak, gameStorage } from '../../../packages/game/daily.mjs'
 
 const named = name => STAMPS.find(stamp => stamp.name === name)
@@ -47,7 +48,7 @@ test('repeated presses cancel, while hints and restart keep cumulative scoring',
   assert.equal(twice.bits, puzzle.start)
   assert.equal(twice.presses, 2)
   assert.equal(applyMove(twice, puzzle, effects, 'press', 0), twice)
-  const hint = applyMove(twice, puzzle, effects, 'hint', 1)
+  const hint = applyMove(twice, puzzle, effects, 'hint')
   assert.equal(hint.presses, 4)
   assert.equal(hint.bits, puzzle.start)
   assert.equal(rating(hint, puzzle), 'Great')
@@ -59,6 +60,24 @@ test('repeated presses cancel, while hints and restart keep cumulative scoring',
   assert.deepEqual(restoreRound(puzzle, restart), restart)
   assert.match(shareResult('Crosswired', { number: 1, puzzles: [puzzle] }, [restart], 'https://dailyden.games/crosswired/'),
     /^Crosswired #1\n🟨\nPresses 4 \(par 3\)\nhttps:\/\/dailyden.games\/crosswired\/$/)
+})
+
+test('a hint recommends a legal move from the current board and charges once', () => {
+  const effects = flipSets(puzzle)
+  const before = applyMove(freshRound(puzzle), puzzle, effects, 'press', 35)
+  const target = asMask(puzzle.goal.bits)
+  const distance = solve(effects, asMask(before.bits) ^ target).par
+  const hinted = applyMove(before, puzzle, effects, 'hint')
+  assert.equal(hinted.bits, before.bits)
+  assert.equal(hinted.presses, before.presses + 2)
+  assert.ok(effects[hinted.suggestion])
+  assert.deepEqual(restoreRound(puzzle, hinted), hinted)
+  assert.equal(applyMove(hinted, puzzle, effects, 'hint'), hinted)
+  const after = applyMove(hinted, puzzle, effects, 'press', hinted.suggestion)
+  assert.equal(after.presses, hinted.presses + 1)
+  assert.equal(solve(effects, asMask(after.bits) ^ target).par, distance - 1)
+  assert.equal(after.suggestion, null)
+  assert.equal(applyMove(hinted, puzzle, effects, 'restart').suggestion, null)
 })
 
 test('calendar generation is reproducible on a small fixture', () => {
