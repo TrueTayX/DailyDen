@@ -1,7 +1,7 @@
 import { dayKey, dayStreak, gameStorage, copyText } from '../assets/game-daily.mjs'
 import { GAME_ID, GAME_NAME, TIME_ZONE, HINT_COST, RATINGS } from './config.mjs'
 import { asMask, cellCoordinates, cellsIn, countBits, flipSets, hasBit } from './engine.mjs'
-import { applyMove, rating, restoreRound, shareResult } from './game.mjs'
+import { applyMove, freshRound, rating, restoreRound, shareResult } from './game.mjs'
 
 const byId = id => document.getElementById(id)
 const board = byId('board')
@@ -24,6 +24,7 @@ const safeObject = value => value && !Array.isArray(value) && typeof value === '
 let settings = safeObject(store.read('settings', {}))
 let day, rounds, index, columns, cells, flashTimer, selected = 0, pending = false
 let abandoned = false
+let replaying = false
 
 function node(tag, className, text) {
   const el = document.createElement(tag)
@@ -38,7 +39,7 @@ function readRounds() {
 }
 
 function record(event, detail = {}) {
-  if (review) return
+  if (review || replaying) return
   const previous = store.read('events', [])
   store.write('events', [...(Array.isArray(previous) ? previous.slice(-249) : []), { event, day: day.date, ...detail }])
 }
@@ -201,7 +202,7 @@ async function perform(type, cell) {
   pending = true
   const puzzle = day.puzzles[index]
   const write = () => {
-    rounds = readRounds()
+    if (!replaying) rounds = readRounds()
     const before = rounds[index]
     if (before.bits === puzzle.goal.bits) {
       refreshBoard()
@@ -214,7 +215,7 @@ async function perform(type, cell) {
       return
     }
     rounds[index] = after
-    store.write('day:' + day.date, rounds)
+    if (!replaying) store.write('day:' + day.date, rounds)
     if (type === 'hint') selected = after.suggestion
     refreshBoard()
     if (type === 'restart') announcement.textContent = 'Board restored. Press count kept.'
@@ -225,7 +226,7 @@ async function perform(type, cell) {
     }
     if (after.bits === puzzle.goal.bits) {
       record('puzzle_completed', { ...fields(after, puzzle), rating: rating(after, puzzle) })
-      if (rounds.every((round, i) => round.bits === day.puzzles[i].goal.bits)) {
+      if (!replaying && rounds.every((round, i) => round.bits === day.puzzles[i].goal.bits)) {
         const stats = safeObject(store.read('stats', {}))
         const completed = safeObject(stats.completed)
         if (!completed[day.date]) {
@@ -239,7 +240,7 @@ async function perform(type, cell) {
     }
   }
   try {
-    if (navigator.locks && !review) await navigator.locks.request(`${GAME_ID}:v1:play`, write)
+    if (navigator.locks && !review && !replaying) await navigator.locks.request(`${GAME_ID}:v1:play`, write)
     else write()
   } finally { pending = false }
 }
@@ -252,9 +253,20 @@ function renderResults() {
     node('li', '', `Puzzle ${i + 1} · ${rating(round, day.puzzles[i])} · ${round.presses} presses`)))
   const completed = safeObject(store.read('stats', {})?.completed)
   const streak = dayStreak(Object.keys(completed), today())
+  byId('complete-heading').textContent = replaying ? 'Practice replay complete' : 'Daily set complete'
   byId('streak').textContent = `${streak}-day streak`
-  byId('perfect').hidden = !completed[day.date]?.perfect
+  byId('streak').hidden = replaying
+  byId('perfect').hidden = replaying || !completed[day.date]?.perfect
+  byId('share').hidden = replaying
+  byId('export').hidden = replaying
   byId('complete-heading').focus()
+}
+
+function setReplay(active) {
+  replaying = active
+  byId('replay-mode').hidden = !active
+  byId('manual-copy').hidden = true
+  byId('share-status').textContent = ''
 }
 
 async function exportText(text, success, share = false) {
@@ -296,6 +308,7 @@ async function load() {
       return
     }
     day = selectedDay
+    setReplay(false)
     rounds = readRounds()
     index = rounds.findIndex((round, i) => round.bits !== day.puzzles[i].goal.bits)
     if (index < 0) index = day.puzzles.length
@@ -314,7 +327,7 @@ async function load() {
 }
 
 function noteAbandonment() {
-  if (!day || index >= day.puzzles.length || abandoned) return
+  if (replaying || !day || index >= day.puzzles.length || abandoned) return
   const round = rounds[index]
   const puzzle = day.puzzles[index]
   if (round.bits === puzzle.goal.bits || !(round.presses || round.restarts)) return
@@ -353,6 +366,21 @@ byId('share').addEventListener('click', () => {
   record('share_clicked')
   const url = new URL(`/${GAME_ID}/`, 'https://dailyden.games').href
   void exportText(shareResult(GAME_NAME, day, rounds, url), 'Result copied.', true)
+})
+byId('replay').addEventListener('click', () => {
+  if (pending) return
+  setReplay(true)
+  rounds = day.puzzles.map(freshRound)
+  index = 0
+  renderPuzzle()
+  heading.focus()
+})
+byId('exit-replay').addEventListener('click', () => {
+  if (pending) return
+  setReplay(false)
+  rounds = readRounds()
+  index = day.puzzles.length
+  renderResults()
 })
 byId('export').addEventListener('click', () => {
   void exportText(JSON.stringify(store.read('events', []), null, 2), 'Events copied.')
