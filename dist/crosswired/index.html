@@ -23,6 +23,10 @@
     </header>
     <p id="loading" role="status">Loading today’s puzzles…</p>
     <aside id="rollover" hidden><button id="open-today" type="button">Open today’s puzzles</button></aside>
+    <aside id="replay-mode" hidden>
+      <span>Practice replay</span>
+      <button id="exit-replay" type="button">Back to daily result</button>
+    </aside>
     <div id="play" class="layout" hidden>
       <section class="console" aria-labelledby="puzzle">
         <div class="puzzle-heading"><h2 id="puzzle" tabindex="-1"></h2><span id="tier"></span></div>
@@ -71,6 +75,7 @@
       <p id="streak"></p>
       <p id="perfect" hidden>🏅 Perfect set</p>
       <button id="share" type="button" class="primary">Share result</button>
+      <button id="replay" type="button">Play again</button>
       <button id="export" type="button">Copy playtest events</button>
       <p id="share-status" role="status"></p>
       <textarea id="manual-copy" readonly aria-label="Text to copy" rows="5" hidden></textarea>
