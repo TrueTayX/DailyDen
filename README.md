@@ -23,6 +23,8 @@ Serve `dist/` with a static HTTP server to try the homepage and the game togethe
 
 After updating either app, run `npm run build` and commit the resulting `dist/` changes. CI rebuilds the site and checks for differences.
 
+The shared footer lives in `packages/shell/`. When adding a game, register its page and a distinct feedback email subject in `scripts/build.mjs`.
+
 ## Cloudflare Pages Git deployment
 
 Connect this repository, set the build command to `npm run build`, and set the build output directory to `dist`. Attach `dailyden.games` to that Pages project. Analytics is off by default. To enable it, apply `apps/unruled/migrations/0001_analytics.sql` to a D1 database, bind it as `RULEBREAKER_ANALYTICS`, and set the Pages build command to `npm run build -- --analytics`. The Unruled client sends events to `/unruled/api/events`.
