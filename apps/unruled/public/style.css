@@ -367,14 +367,29 @@ dialog p:last-child { margin-bottom: 0; color: var(--muted); }
 .metric { background: var(--panel); border: 1px solid var(--line); border-radius: .38rem; padding: .65rem .8rem; }
 .metric dt { font-size: .83rem; color: var(--muted); }
 .metric dd { font-size: 1.35rem; font-weight: 800; margin: .2rem 0 0; }
-.achievements-heading { margin: 1.1rem 0 .45rem; }
-.achievements { list-style: none; padding: 0; margin: 0; display: grid; gap: .42rem; }
-.achievement { padding: .58rem .7rem; border: 1px solid var(--line); border-radius: .38rem; background: var(--panel); }
+.achievements-heading { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: .35rem .75rem; margin-bottom: .6rem; }
+.achievements-heading h3 { margin: 0; }
+#achievement-count { color: var(--muted); font-size: .84rem; }
+.achievements { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; }
+.achievement {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .32rem;
+  padding: .7rem .48rem;
+  border: 1px solid var(--line);
+  border-radius: .38rem;
+  background: var(--panel);
+  font-size: .92rem;
+  text-align: center;
+}
 .achievement--earned { border-color: #477966; background: #203b37; }
-.achievement-title { display: flex; justify-content: space-between; align-items: baseline; gap: .5rem; }
-.achievement-state { font-size: .8rem; font-weight: 750; color: var(--muted); }
+.achievement-icon { font-size: 1.65rem; line-height: 1.2; filter: grayscale(1); }
+.achievement--earned .achievement-icon { filter: none; }
+.achievement-state { margin-top: auto; padding-top: .25rem; font-size: .8rem; font-weight: 750; color: var(--muted); }
 .achievement--earned .achievement-state { color: var(--good); }
-.achievement-description { font-size: .84rem; color: var(--muted); }
+.achievement-description { font-size: .8rem; line-height: 1.35; color: var(--muted); }
+.stats-heading { margin: 1.1rem 0 .5rem; }
 .legal { max-width: 42rem; }
 .legal p { line-height: 1.55; }
 dialog { max-height: calc(100dvh - 2rem); overflow-y: auto; }
@@ -418,6 +433,7 @@ dialog { max-height: calc(100dvh - 2rem); overflow-y: auto; }
 }
 
 @media (max-width: 420px) {
+  .achievements { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .header-inner { min-height: 56px; }
   .header-actions { gap: .1rem; }
   .brand { gap: .38rem; font-size: 1.4rem; }
