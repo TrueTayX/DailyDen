@@ -6,7 +6,8 @@ import { GAME_ID, PAR_RANGES, PROBE_LIMITS, TIERS } from '../public/config.mjs'
 import { STAMPS } from '../public/stamps.mjs'
 import { dateFor, familyNames, FAMILY_RELEASES, STAMP_COOLDOWN, GOAL_COOLDOWN } from './calendar.mjs'
 import { goalKey, markedCells, probeNumber, signature, symmetryFlag } from './puzzles.mjs'
-import { independentPar, solve } from './solver.mjs'
+import { solve } from '../public/solver.mjs'
+import { independentPar } from './independent-par.mjs'
 
 const content = new URL('../content/', import.meta.url)
 const { calendar, pool } = JSON.parse(await readFile(new URL('calendar.json', content), 'utf8'))

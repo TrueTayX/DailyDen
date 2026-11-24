@@ -10,6 +10,7 @@ const announcement = byId('announcement')
 const restart = byId('restart')
 const hint = byId('hint')
 const next = byId('next')
+const result = byId('result')
 const assist = byId('assist')
 const contrast = byId('contrast')
 const help = byId('help')
@@ -21,7 +22,7 @@ const store = gameStorage(GAME_ID, storage)
 const today = () => dayKey(new Date(), TIME_ZONE)
 const safeObject = value => value && !Array.isArray(value) && typeof value === 'object' ? value : {}
 let settings = safeObject(store.read('settings', {}))
-let day, rounds, index, columns, cells, flashTimer, selected = 0, hinting = false, pending = false
+let day, rounds, index, columns, cells, flashTimer, selected = 0, pending = false
 let abandoned = false
 
 function node(tag, className, text) {
@@ -84,11 +85,13 @@ function refreshBoard() {
   const round = rounds[index]
   const solved = round.bits === puzzle.goal.bits
   const currentRating = solved ? rating(round, puzzle) : ''
+  const suggestion = solved ? null : round.suggestion
   const marked = new Set(puzzle.split?.marked.map(([r, c]) => r * puzzle.size + c))
   cells.forEach((button, cell) => {
     const on = round.bits[cell] === '1'
     const blocked = columns[cell] === null
     button.classList.toggle('on', on)
+    button.classList.toggle('suggested', cell === suggestion)
     button.classList.toggle('differs', assist.checked && round.bits[cell] !== puzzle.goal.bits[cell])
     button.tabIndex = cell === selected && !solved ? 0 : -1
     button.disabled = solved
@@ -96,16 +99,19 @@ function refreshBoard() {
     button.setAttribute('aria-label', [
       position(cell, puzzle.size), on ? 'on' : 'off', blocked ? 'locked' : '',
       puzzle.split && marked.has(cell) ? 'diamond' : '',
+      cell === suggestion ? 'suggested move' : '',
       assist.checked && round.bits[cell] !== puzzle.goal.bits[cell] ? 'differs from goal' : '',
     ].filter(Boolean).join(', '))
   })
   byId('presses').textContent = round.presses
   byId('restarts').textContent = round.restarts
-  byId('result').textContent = solved ? `Solved in ${round.presses} (par ${puzzle.par}) · ${currentRating}`
-    : hinting ? 'Choose a light to see what it flips.' : ''
-  hint.disabled = solved
-  hint.setAttribute('aria-pressed', String(hinting))
-  restart.disabled = solved
+  result.textContent = solved ? `Solved in ${round.presses} (par ${puzzle.par}) · ${currentRating}`
+    : suggestion != null ? `Try ${position(suggestion, puzzle.size)}. Hint added ${HINT_COST} presses.` : ''
+  result.hidden = !result.textContent
+  result.classList.toggle('result--hint', suggestion != null)
+  hint.hidden = solved
+  hint.disabled = suggestion != null
+  restart.hidden = solved
   next.hidden = !solved
   next.textContent = index === day.puzzles.length - 1 ? 'See results' : 'Next puzzle'
   byId('empty-history').hidden = round.recent.length > 0
@@ -128,8 +134,7 @@ function renderPuzzle() {
   const size = puzzle.size
   const round = rounds[index]
   columns = flipSets(puzzle)
-  selected = columns.findIndex(column => column !== null)
-  hinting = false
+  selected = round.suggestion ?? columns.findIndex(column => column !== null)
   abandoned = false
   clearTimeout(flashTimer)
   byId('complete').hidden = true
@@ -170,7 +175,7 @@ function renderPuzzle() {
     button.addEventListener('click', () => {
       if (columns[cell] === null) return
       selected = cell
-      void perform(hinting ? 'hint' : 'press', cell)
+      void perform('press', cell)
     })
     button.addEventListener('keydown', event => {
       const [r, c] = cellCoordinates(cell, size)
@@ -203,14 +208,21 @@ async function perform(type, cell) {
       return
     }
     const after = type === 'assist' ? { ...before, assisted: true } : applyMove(before, puzzle, columns, type, cell)
-    if (after === before) return
+    if (after === before) {
+      refreshBoard()
+      if (type === 'hint' && before.suggestion == null) announcement.textContent = 'No hint is available for this board.'
+      return
+    }
     rounds[index] = after
     store.write('day:' + day.date, rounds)
-    hinting = false
+    if (type === 'hint') selected = after.suggestion
     refreshBoard()
     if (type === 'restart') announcement.textContent = 'Board restored. Press count kept.'
-    if (type === 'press' || type === 'hint') flash(columns[cell],
-      type === 'hint' ? `Hint added ${HINT_COST} presses. Would flip:` : 'Flipped:', puzzle.size)
+    if (type === 'press') flash(columns[cell], 'Flipped:', puzzle.size)
+    if (type === 'hint') {
+      flash(columns[selected], `Hint added ${HINT_COST} presses. Try ${position(selected, puzzle.size)}. Would flip:`, puzzle.size)
+      cells[selected].focus({ preventScroll: true })
+    }
     if (after.bits === puzzle.goal.bits) {
       record('puzzle_completed', { ...fields(after, puzzle), rating: rating(after, puzzle) })
       if (rounds.every((round, i) => round.bits === day.puzzles[i].goal.bits)) {
@@ -222,6 +234,7 @@ async function perform(type, cell) {
           record('day_completed')
         }
       }
+      announcement.textContent += ' ' + result.textContent
       next.focus({ preventScroll: true })
     }
   }
@@ -310,11 +323,8 @@ function noteAbandonment() {
 }
 
 restart.addEventListener('click', () => { void perform('restart') })
-hint.addEventListener('click', () => {
-  hinting = !hinting
-  refreshBoard()
-  if (hinting) cells[selected].focus()
-})
+byId('hint-cost').textContent = `· costs ${HINT_COST} presses`
+hint.addEventListener('click', () => { void perform('hint') })
 next.addEventListener('click', () => {
   index += 1
   renderPuzzle()

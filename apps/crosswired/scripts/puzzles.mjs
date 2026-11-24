@@ -1,7 +1,7 @@
 import { STAMPS } from '../public/stamps.mjs'
 import { applyPresses, asBits, asMask, bit, cellCoordinates, cellIndex, cellsIn, countBits, flipSets, hasBit, stampMask } from '../public/engine.mjs'
 import { GENERATOR, PAR_RANGES, PROBE_LIMITS, TIERS } from '../public/config.mjs'
-import { solve } from './solver.mjs'
+import { solve } from '../public/solver.mjs'
 
 export function rng(seed) {
   let state = seed >>> 0
