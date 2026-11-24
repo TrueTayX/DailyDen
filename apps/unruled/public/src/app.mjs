@@ -161,11 +161,15 @@ function updateStats() {
     ['Hints used', profile.hints], ['Best daily score', `${profile.bestScore}/10`],
   ]
   document.querySelector('#stats-data').replaceChildren(...metrics.map(([label, value]) => metric(label, value)))
-  const badges = profile.achievements.map(achievement => {
-    const item = node('li', `achievement${achievement.earned ? ' achievement--earned' : ''}`)
-    const title = node('div', 'achievement-title')
-    title.append(node('strong', '', achievement.title), node('span', 'achievement-state', achievement.earned ? 'Earned' : 'Locked'))
-    item.append(title, node('span', 'achievement-description', achievement.description))
+  const earnedCount = profile.achievements.filter(badge => badge.earned).length
+  document.querySelector('#achievement-count').textContent = `${earnedCount} of ${profile.achievements.length} earned`
+  const badges = profile.achievements.map(badge => {
+    const item = node('li', `achievement${badge.earned ? ' achievement--earned' : ''}`)
+    const badgeIcon = node('span', 'achievement-icon', badge.icon)
+    badgeIcon.setAttribute('aria-hidden', 'true')
+    const state = badge.earned ? 'Earned' : badge.target > 1 ? `${badge.progress} of ${badge.target}` : 'Locked'
+    item.append(badgeIcon, node('strong', '', badge.title),
+      node('span', 'achievement-description', badge.description), node('span', 'achievement-state', state))
     return item
   })
   document.querySelector('#achievements').replaceChildren(...badges)
@@ -452,7 +456,7 @@ function renderResults() {
   }
   const resultsActions = node('div', 'results-actions')
   resultsActions.append(button('Share result', 'primary', () => share(resultsActions)))
-  if (!playtest) resultsActions.append(button('View statistics', 'text-button', () => {
+  if (!playtest) resultsActions.append(button('View progress', 'text-button', () => {
     updateStats()
     document.querySelector('#stats').showModal()
   }))

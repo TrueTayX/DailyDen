@@ -87,7 +87,32 @@ test('a player profile derives accuracy, history, streaks, and achievements from
   assert.equal(stats.hints, 1)
   assert.equal(stats.bestScore, 10)
   assert.deepEqual(stats.achievements.filter(item => item.earned).map(item => item.title),
-    ['First solve', 'Perfect day', 'Seven-day streak'])
+    ['First Crack', 'In the Books', 'On a Roll', 'Week Warrior', 'Clean Sweep', 'No Lifelines',
+      'Perfect Day', 'Flawless Week', 'Second Shot'])
+  assert.deepEqual(stats.achievements.find(item => item.title === 'Monthly Regular'),
+    { icon: '🗓️', title: 'Monthly Regular', description: 'Finish 30 daily sets in a row.', target: 30, progress: 7, earned: false })
+})
+
+test('achievement rules distinguish finishing, solving without hints, and a perfect set', () => {
+  const date = '2026-12-08'
+  const badgesFor = (first, completedOn = date) =>
+    playerProfile([day(date, completedOn, [first, solved(), solved(), solved(), solved()])], date).achievements
+      .filter(badge => badge.earned).map(badge => badge.title)
+  assert.deepEqual(badgesFor({ result: 'revealed', hinted: false, attempts: [] }), ['First Crack', 'In the Books'])
+  assert.deepEqual(badgesFor(solved(1, true)), ['First Crack', 'In the Books', 'Clean Sweep'])
+  assert.deepEqual(badgesFor(solved(2)), ['First Crack', 'In the Books', 'Clean Sweep', 'No Lifelines', 'Second Shot'])
+  assert.deepEqual(badgesFor(solved()), ['First Crack', 'In the Books', 'Clean Sweep', 'No Lifelines', 'Perfect Day'])
+})
+
+test('reveals preserve completion streaks while late sets and reveals interrupt a flawless week', () => {
+  const days = Array.from({ length: 7 }, (_, index) => day(`2026-12-0${index + 1}`))
+  const revealed = { result: 'revealed', hinted: false, attempts: [] }
+  const disrupted = playerProfile(days.with(3, day('2026-12-04', '2026-12-04', [revealed, solved(), solved(), solved(), solved()])), '2026-12-07')
+  assert.equal(disrupted.longest, 7)
+  assert.equal(disrupted.longestSolved, 3)
+  const late = playerProfile(days.with(3, day('2026-12-04', '2026-12-05')), '2026-12-07')
+  assert.equal(late.longest, 3)
+  assert.equal(late.longestSolved, 3)
 })
 
 test('analytics respects privacy signals and persists only allowlisted gameplay fields', async () => {

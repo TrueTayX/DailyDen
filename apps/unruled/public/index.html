@@ -21,7 +21,7 @@
       <a class="brand" href="./" aria-label="Unruled home"><img src="./mark.svg" alt="" width="37" height="37">Unruled</a>
       <nav class="header-actions" aria-label="Game options">
         <button class="icon-button" type="button" data-dialog="help" aria-label="How to play" title="How to play"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.7 9.2c.2-1.3 1.2-2 2.4-2 1.5 0 2.4.9 2.4 2.1 0 1.8-2.5 2-2.5 3.7m0 3.4h.01"/></svg></button>
-        <button class="icon-button" type="button" data-dialog="stats" aria-label="Statistics" title="Statistics"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5v15h16M8 15v-3m5 3V8m5 7V4"/></svg></button>
+        <button class="icon-button" type="button" data-dialog="stats" aria-label="Statistics and achievements" title="Statistics and achievements"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h8v5a4 4 0 0 1-8 0V4Zm0 2H4v1a4 4 0 0 0 4 4m8-5h4v1a4 4 0 0 1-4 4m-4 2v6m-4 1h8"/></svg></button>
         <button class="games-button" type="button" data-dialog="games" aria-label="Games" title="Games"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/></svg><span class="games-label">Games</span></button>
       </nav>
     </div>
@@ -69,10 +69,14 @@
     <form method="dialog" class="help-actions"><button class="primary" autofocus>Play</button></form>
   </dialog>
   <dialog id="stats" aria-labelledby="stats-title">
-    <div class="dialog-head"><h2 id="stats-title">Your statistics</h2><form method="dialog"><button class="icon-button close" aria-label="Close">×</button></form></div>
-    <dl id="stats-data" class="metrics"></dl>
-    <h3 class="achievements-heading">Achievements</h3>
-    <ul id="achievements" class="achievements"></ul>
+    <div class="dialog-head"><h2 id="stats-title">Your progress</h2><form method="dialog"><button class="icon-button close" aria-label="Close">×</button></form></div>
+    <div class="achievements-heading">
+      <h3 id="achievements-title">Achievements</h3>
+      <span id="achievement-count"></span>
+    </div>
+    <ul id="achievements" class="achievements" aria-labelledby="achievements-title"></ul>
+    <h3 class="stats-heading" id="statistics-title">Statistics</h3>
+    <dl id="stats-data" class="metrics" aria-labelledby="statistics-title"></dl>
   </dialog>
   <dialog id="games" aria-labelledby="games-title">
     <div class="dialog-head"><h2 id="games-title">More games</h2><form method="dialog"><button class="icon-button close" aria-label="Close">×</button></form></div>
