@@ -7,11 +7,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 22
       - run: npm test
       - run: npm run build
+      - run: npm run crosswired:verify
+        env:
+          CROSSWIRED_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
       - name: Check that dist matches the source
         run: |
           changes="$(git status --short --untracked-files=all -- dist/)"

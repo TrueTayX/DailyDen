@@ -1,0 +1,30 @@
+name: Publish Crosswired
+on:
+  schedule:
+    - cron: '8 7,8 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: crosswired-release
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Publish newly available days
+        run: |
+          node apps/crosswired/scripts/release.mjs
+          if git diff --quiet -- apps/crosswired/content/published-through.txt; then exit 0; fi
+          npm run build
+          CROSSWIRED_BASE="$(git rev-parse HEAD)" npm run crosswired:verify
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add apps/crosswired/content/published-through.txt dist/
+          git commit -m "Publish the latest Crosswired day"
+          git push origin HEAD:main

@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Discover how the switches work and match four daily light patterns.">
+  <meta name="theme-color" content="#111619">
+  <link rel="canonical" href="https://dailyden.games/crosswired/">
+  <title>Crosswired | Daily Den</title>
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="play.mjs"></script>
+</head>
+<body>
+  <main class="shell">
+    <header class="game-header">
+      <a href="/">Daily Den</a>
+      <div class="title-row">
+        <h1>Crosswired</h1>
+        <button id="help-button" type="button">How to play</button>
+      </div>
+      <p id="day-label"></p>
+    </header>
+    <p id="loading" role="status">Loading today’s puzzles…</p>
+    <aside id="rollover" hidden><button id="open-today" type="button">Open today’s puzzles</button></aside>
+    <div id="play" class="layout" hidden>
+      <section class="console" aria-labelledby="puzzle">
+        <div class="puzzle-heading"><h2 id="puzzle" tabindex="-1"></h2><span id="tier"></span></div>
+        <p id="daily-tip">Each press flips a hidden pattern of lights. Watch what changes.</p>
+        <dl class="counters">
+          <div><dt>Presses</dt><dd id="presses">0</dd></div>
+          <div><dt>Par</dt><dd id="par"></dd></div>
+          <div><dt>Restarts</dt><dd id="restarts">0</dd></div>
+        </dl>
+        <div class="board-section">
+          <div>
+            <div class="board" id="board" role="group" aria-label="Light board"></div>
+            <p id="modifiers" class="modifiers"></p>
+          </div>
+          <div class="goal-panel">
+            <strong>Goal</strong>
+            <div id="goal"></div>
+            <span id="goal-name"></span>
+          </div>
+        </div>
+        <p id="result" class="result" tabindex="-1"></p>
+        <p id="announcement" class="sr-only" role="status" aria-atomic="true"></p>
+        <div class="actions">
+          <button id="restart" type="button" title="Restore the starting lights and keep the press count">Restart</button>
+          <button id="hint" type="button">Hint (+2)</button>
+          <button id="next" type="button" class="primary" hidden>Next puzzle</button>
+        </div>
+      </section>
+      <aside class="history-panel">
+        <h2>Last 3 presses</h2>
+        <p id="empty-history">Flipped lights will appear here.</p>
+        <ol id="history" class="history" aria-label="Recent presses"></ol>
+        <fieldset class="settings">
+          <legend>Display options</legend>
+          <label><input id="assist" type="checkbox"> Outline cells that still differ</label>
+          <label><input id="contrast" type="checkbox"> High contrast</label>
+        </fieldset>
+      </aside>
+    </div>
+    <section id="complete" class="console results" hidden aria-labelledby="complete-heading">
+      <h2 id="complete-heading" tabindex="-1">Daily set complete</h2>
+      <p id="summary"></p>
+      <ol id="ratings"></ol>
+      <p id="streak"></p>
+      <p id="perfect" hidden>🏅 Perfect set</p>
+      <button id="share" type="button" class="primary">Share result</button>
+      <button id="export" type="button">Copy playtest events</button>
+      <p id="share-status" role="status"></p>
+      <textarea id="manual-copy" readonly aria-label="Text to copy" rows="5" hidden></textarea>
+    </section>
+  </main>
+  <dialog id="help" aria-labelledby="help-heading">
+    <h2 id="help-heading">How to play</h2>
+    <ol>
+      <li>Press a light and watch which lights flip.</li>
+      <li>Match the board to the goal picture. Aim for par, the fewest possible presses.</li>
+      <li>Finish all four puzzles to complete the day. Restart keeps your press count, and a hint adds two presses.</li>
+    </ol>
+    <form method="dialog"><button class="primary">Play</button></form>
+  </dialog>
+  <!-- site-footer:start -->
+  <!-- site-footer:end -->
+</body>
+</html>

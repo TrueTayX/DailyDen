@@ -7,6 +7,8 @@
   },
   "scripts": {
     "build": "node scripts/build.mjs",
-    "test": "npm --prefix apps/unruled test"
+    "test": "npm --prefix apps/unruled test && node --test apps/crosswired/tests/*.test.mjs",
+    "crosswired:review": "node apps/crosswired/scripts/review.mjs",
+    "crosswired:verify": "node apps/crosswired/scripts/verify.mjs"
   }
 }
