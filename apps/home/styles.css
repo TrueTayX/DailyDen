@@ -82,7 +82,7 @@ h1, h2, h3, p { margin: 0; }
 
 .game-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1.25rem;
   margin: 1.15rem 0 0;
   padding: 0;
@@ -132,6 +132,13 @@ h1, h2, h3, p { margin: 0; }
 }
 .token-outline { background: #fff5db; }
 .rule-arrow { margin-inline: .5rem; font-size: clamp(1.75rem, 4vw, 2.75rem); line-height: 1; }
+.crosswired-art { display: grid; grid-template-columns: repeat(3, 2.25rem); align-content: center; gap: .42rem; background: #263538; }
+.crosswired-art span { aspect-ratio: 1; border: 2px solid #a7c4bf; border-radius: 50%; }
+.crosswired-art span:is(:nth-child(2), :nth-child(4), :nth-child(5), :nth-child(8)) {
+  background: #ffdc7b;
+  border-color: #ffe9a9;
+  box-shadow: 0 0 .55rem #ffdc7b70;
+}
 
 .game-copy { display: flex; flex: 1; align-items: flex-start; flex-direction: column; padding: clamp(1.1rem, 3vw, 1.65rem); }
 .game h3 { font: 700 clamp(1.65rem, 3.8vw, 2.2rem)/1.08 Georgia, serif; }
@@ -146,6 +153,10 @@ h1, h2, h3, p { margin: 0; }
 .privacy-page h1 { margin: .75rem 0 1.5rem; font: 700 clamp(2rem, 6vw, 3.2rem)/1.08 Georgia, serif; }
 .privacy-page h2 { margin-top: 1.35rem; font: 700 1.35rem/1.2 Georgia, serif; }
 .privacy-page p { margin-top: .45rem; }
+
+@media (max-width: 48rem) {
+  .game-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
 
 @media (max-width: 39rem) {
   .page { width: calc(100% - 1.75rem); margin: 1.25rem auto 2rem; }
