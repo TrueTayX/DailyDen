@@ -14,6 +14,7 @@ const next = byId('next')
 const result = byId('result')
 const assist = byId('assist')
 const contrast = byId('contrast')
+const settingsDialog = byId('settings-dialog')
 const help = byId('help')
 const mechanicTip = byId('mechanic-tip')
 const tipList = byId('mechanic-tip-list')
@@ -398,6 +399,7 @@ document.documentElement.classList.toggle('high-contrast', contrast.checked)
 assist.addEventListener('change', () => {
   settings = { ...settings, assist: assist.checked }
   store.write('settings', settings)
+  if (!day?.puzzles[index]) return
   if (assist.checked) void perform('assist')
   else refreshBoard()
 })
@@ -413,10 +415,13 @@ byId('play').addEventListener('keydown', event => {
   dismissMechanicTips('escape')
 })
 byId('reset-tips').addEventListener('click', () => {
-  dismissMechanicTips('reset')
   for (const { id } of mechanics) store.remove('seen:' + id)
+  settingsDialog.close()
+  if (!day?.puzzles[index]) return
+  dismissMechanicTips('reset')
   showMechanicTips()
 })
+byId('settings-button').addEventListener('click', () => settingsDialog.showModal())
 byId('help-mechanics').replaceChildren(...mechanics.map(mechanic => node('li', '', mechanic.help ?? mechanic.text)))
 byId('help-button').addEventListener('click', () => help.showModal())
 help.addEventListener('close', () => {
