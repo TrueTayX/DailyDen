@@ -142,6 +142,17 @@ h1, h2, h3, p { margin: 0; }
 
 .game-copy { display: flex; flex: 1; align-items: flex-start; flex-direction: column; padding: clamp(1.1rem, 3vw, 1.65rem); }
 .game h3 { font: 700 clamp(1.65rem, 3.8vw, 2.2rem)/1.08 Georgia, serif; }
+.beta-badge {
+  display: inline-block;
+  vertical-align: middle;
+  margin-inline-start: .25rem;
+  padding: .18rem .4rem;
+  border: 1px solid currentColor;
+  border-radius: .2rem;
+  background: #ffebcb;
+  color: #633820;
+  font: 700 .75rem/1.2 system-ui, sans-serif;
+}
 .game h3 + p { margin: .55rem 0 1.15rem; color: #454960; line-height: 1.55; }
 .play { margin-top: auto; min-height: 2.75rem; display: inline-flex; align-items: center; gap: .65rem; font-size: .95rem; font-weight: 700; }
 .play { padding: .55rem .8rem; background: var(--ink); color: #fffdf6; text-decoration: none; }
