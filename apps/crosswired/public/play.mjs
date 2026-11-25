@@ -17,6 +17,7 @@ const contrast = byId('contrast')
 const settingsDialog = byId('settings-dialog')
 const help = byId('help')
 const mechanicTip = byId('mechanic-tip')
+const viewTip = byId('view-tip')
 const tipList = byId('mechanic-tip-list')
 const tipAnnouncement = byId('tip-announcement')
 const mechanics = [
@@ -66,6 +67,7 @@ function fields(round, puzzle) {
 function renderMechanicTips() {
   tipList.replaceChildren(...visibleTips.map(({ text }) => node('li', '', text)))
   mechanicTip.hidden = visibleTips.length === 0
+  viewTip.hidden = mechanicTip.hidden
   board.querySelectorAll('.tip-target').forEach(cell => cell.classList.remove('tip-target'))
   board.classList.toggle('tip-edge', visibleTips.some(({ id }) => id === 'wrap'))
   for (const { target } of visibleTips) {
@@ -88,7 +90,7 @@ function showMechanicTips() {
 
 function dismissMechanicTips(reason) {
   if (!visibleTips.length) return
-  const restoreFocus = mechanicTip.contains(document.activeElement)
+  const restoreFocus = document.activeElement === viewTip || mechanicTip.contains(document.activeElement)
   for (const { id } of visibleTips) {
     record('tip_dismissed', { mechanic: id, index: day.puzzles[index].index, reason })
   }
@@ -415,6 +417,10 @@ contrast.addEventListener('change', () => {
   document.documentElement.classList.toggle('high-contrast', contrast.checked)
 })
 byId('dismiss-tip').addEventListener('click', () => dismissMechanicTips('got_it'))
+viewTip.addEventListener('click', () => {
+  mechanicTip.scrollIntoView({ block: 'nearest' })
+  byId('dismiss-tip').focus({ preventScroll: true })
+})
 byId('play').addEventListener('keydown', event => {
   if (event.key !== 'Escape' || !visibleTips.length) return
   event.preventDefault()

@@ -33,7 +33,13 @@
     <aside id="rollover" hidden><button id="open-today" type="button">Open today’s puzzles</button></aside>
     <div id="play" class="layout" hidden>
       <section class="console" aria-labelledby="puzzle">
-        <div class="puzzle-heading"><h2 id="puzzle" tabindex="-1"></h2><span id="tier"></span></div>
+        <div class="puzzle-heading">
+          <h2 id="puzzle" tabindex="-1"></h2>
+          <div class="puzzle-meta">
+            <button id="view-tip" type="button" aria-label="Read mechanic tip" aria-controls="mechanic-tip" hidden>Tip</button>
+            <span id="tier"></span>
+          </div>
+        </div>
         <p id="daily-tip">Each press flips a hidden pattern of lights. Watch what changes.</p>
         <dl class="counters">
           <div><dt>Presses</dt><dd id="presses">0</dd></div>

@@ -76,6 +76,8 @@ button.primary { background: var(--gold); color: #222018; border-color: var(--go
 .game-header > a { display: inline-block; color: var(--muted); padding-block: .25rem; margin-bottom: .55rem; }
 .title-row, .puzzle-heading { display: flex; gap: .55rem 1rem; flex-wrap: wrap; align-items: center; justify-content: space-between; }
 .title-actions { display: flex; gap: .5rem; align-items: center; }
+.puzzle-meta { display: flex; gap: .55rem; align-items: center; }
+#view-tip { display: none; }
 button.settings-icon { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border-radius: 50%; }
 button.settings-icon:hover { background: #29363a; }
 #day-label, #tier, #daily-tip, #goal-name { color: var(--muted); font-size: .84rem; }
@@ -193,8 +195,9 @@ dialog li { margin-bottom: .65rem; line-height: 1.5; }
     gap: .3rem;
   }
   .layout > .console { display: contents; }
-  .puzzle-heading { grid-area: heading; }
+  .puzzle-heading { grid-area: heading; min-height: max(24px, 1.45rem); }
   .puzzle-heading h2 { font-size: .95rem; }
+  #view-tip { display: inline-block; min-height: 24px; padding: .1rem .45rem; color: var(--cyan); font-size: .8rem; line-height: 1.15; }
   .counters { grid-area: counters; margin: 0; }
   .counters div { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: center; gap: 0 .35rem; padding: .35rem .25rem; }
   .counters dd { font-size: 1.12rem; }
