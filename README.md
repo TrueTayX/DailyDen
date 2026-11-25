@@ -39,3 +39,9 @@ Crosswired uses midnight in `America/Los_Angeles` and has four puzzles per day. 
 Run `npm run crosswired:review -- YYYY-MM-DD` and serve `reports/crosswired/` locally to play through the next 14 days and read the metrics. Review builds include unreleased puzzles. Use `node apps/crosswired/scripts/swap.mjs RESERVE_ID` to replace an unpublished puzzle with a compatible reserve. Run `npm run build && npm run crosswired:verify` after changes.
 
 The 33 starter families cannot supply at least two new families per day under a 21-day cooldown. The scheduler enforces ten intervening days for each stamp family and ten for each concrete goal board. All-off and all-on warm-ups cycle separately. Five advanced families become eligible at two-week intervals. The generator balances uses within tier and probe limits. Human playtesting and difficulty calibration are editorial steps.
+
+## Crosswired interface
+
+Square and round light shapes are reserved for Split. A Split partition assigns square lights to one hidden pattern and round lights to the other. The generator stores the square light positions in `split.marked`. Locks use a dashed tile outline and lock badge. Wrap uses edge arrows.
+
+The goal thumbnail uses the board’s light shapes at the same positions, with filled lights for on and hollow lights for off. Board labels identify each light as square or round before announcing its state.

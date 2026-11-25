@@ -2,6 +2,7 @@ import { dayKey, dayStreak, gameStorage, copyText } from '../assets/game-daily.m
 import { GAME_ID, GAME_NAME, TIME_ZONE, HINT_COST, RATINGS } from './config.mjs'
 import { asMask, cellCoordinates, cellsIn, countBits, flipSets, hasBit } from './engine.mjs'
 import { applyMove, freshRound, rating, restoreRound, shareResult } from './game.mjs'
+import { lightShapes } from './lights.mjs'
 
 const byId = id => document.getElementById(id)
 const board = byId('board')
@@ -19,7 +20,9 @@ const tipList = byId('mechanic-tip-list')
 const tipAnnouncement = byId('tip-announcement')
 const mechanics = [
   { id: 'locked', target: '.blocked', text: "Locked cells can't be pressed. They can still light up or go dark when other presses flip them." },
-  { id: 'split', target: '.marked', text: 'Marked cells follow a different hidden pattern from unmarked ones.' },
+  { id: 'split', target: '[data-shape="square"]',
+    text: 'Square lights follow a different hidden pattern from round lights.',
+    help: 'Square lights follow a different pattern from round lights.' },
   { id: 'wrap', target: null, text: 'Edges wrap around: a pattern that runs off one side comes back on the opposite side.' },
 ]
 const review = document.documentElement.dataset.review === 'true'
@@ -94,13 +97,14 @@ function dismissMechanicTips(reason) {
   if (restoreFocus) cells[selected]?.focus({ preventScroll: true })
 }
 
-function miniature(mask, size, current) {
+function miniature(mask, size, { current, shapes } = {}) {
   const diagram = node('div', 'mini')
   diagram.style.setProperty('--size', size)
   diagram.setAttribute('aria-hidden', 'true')
   for (const cell of cellsIn(size)) {
     const tile = node('span', hasBit(mask, cell) ? 'flip' : '')
     tile.classList.toggle('pressed', cell === current)
+    if (shapes) tile.dataset.shape = shapes[cell]
     diagram.append(tile)
   }
   return diagram
@@ -142,8 +146,7 @@ function refreshBoard() {
     button.disabled = solved
     button.setAttribute('aria-disabled', String(blocked || solved))
     button.setAttribute('aria-label', [
-      position(cell, puzzle.size), on ? 'on' : 'off', blocked ? 'locked' : '',
-      button.classList.contains('marked') ? 'marked' : '',
+      position(cell, puzzle.size), `${button.dataset.shape} light`, on ? 'on' : 'off', blocked ? 'locked' : '',
       cell === suggestion ? 'suggested move' : '',
       assist.checked && round.bits[cell] !== puzzle.goal.bits[cell] ? 'differs from goal' : '',
     ].filter(Boolean).join(', '))
@@ -164,7 +167,7 @@ function refreshBoard() {
     const row = node('li')
     const mask = columns[cell] ?? 0n
     const flipped = cellsIn(puzzle.size).filter(i => hasBit(mask, i))
-    row.append(miniature(mask, puzzle.size, cell), node('span', 'history-label', position(cell, puzzle.size)),
+    row.append(miniature(mask, puzzle.size, { current: cell }), node('span', 'history-label', position(cell, puzzle.size)),
       node('span', 'sr-only', 'Flipped ' + (flipped.map(i => position(i, puzzle.size)).join('; ') || 'no lights')))
     return row
   }))
@@ -177,6 +180,7 @@ function renderPuzzle() {
   }
   const puzzle = day.puzzles[index]
   const size = puzzle.size
+  const shapes = lightShapes(puzzle)
   const round = rounds[index]
   columns = flipSets(puzzle)
   selected = round.suggestion ?? columns.findIndex(column => column !== null)
@@ -190,24 +194,25 @@ function renderPuzzle() {
   byId('par').textContent = puzzle.par
   byId('goal-name').textContent = ['fourfold pattern', 'mirror pattern'].includes(puzzle.goal.name)
     ? 'symmetric pattern' : puzzle.goal.name
-  const goal = miniature(asMask(puzzle.goal.bits), size)
+  const goal = miniature(asMask(puzzle.goal.bits), size, { shapes })
   goal.classList.add('goal')
   goal.removeAttribute('aria-hidden')
   goal.setAttribute('role', 'img')
   const lit = cellsIn(size).filter(cell => puzzle.goal.bits[cell] === '1')
-  goal.setAttribute('aria-label', 'Goal lights on: ' + (lit.length ? lit.map(cell => position(cell, size)).join('; ') : 'none'))
+  goal.setAttribute('aria-label', 'Goal lights on: ' + (lit.length
+    ? lit.map(cell => `${position(cell, size)}, ${shapes[cell]} light`).join('; ') : 'none'))
   byId('goal').replaceChildren(goal)
+  byId('split-legend').hidden = !puzzle.split
   board.style.setProperty('--size', size)
   board.classList.toggle('wrap', puzzle.wrap)
   board.setAttribute('aria-label', `${size} by ${size} light board. Use arrow keys to move and Space to press.`)
-  const marked = new Set(puzzle.split?.marked.map(([r, c]) => r * size + c))
   cells = cellsIn(size).map(cell => {
     const button = node('button', 'light')
     button.type = 'button'
+    button.dataset.shape = shapes[cell]
     button.append(node('span', 'bulb'))
     const blocked = columns[cell] === null
     button.classList.toggle('blocked', blocked)
-    button.classList.toggle('marked', marked.has(cell))
     if (blocked) {
       const badge = node('span', 'lock-badge')
       badge.setAttribute('aria-hidden', 'true')
@@ -413,7 +418,7 @@ byId('reset-tips').addEventListener('click', () => {
   for (const { id } of mechanics) store.remove('seen:' + id)
   showMechanicTips()
 })
-byId('help-mechanics').replaceChildren(...mechanics.map(({ text }) => node('li', '', text)))
+byId('help-mechanics').replaceChildren(...mechanics.map(mechanic => node('li', '', mechanic.help ?? mechanic.text)))
 byId('help-button').addEventListener('click', () => help.showModal())
 help.addEventListener('close', () => {
   settings = { ...settings, introSeen: true }
