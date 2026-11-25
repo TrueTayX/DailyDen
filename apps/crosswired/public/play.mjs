@@ -202,7 +202,6 @@ function renderPuzzle() {
   goal.setAttribute('aria-label', 'Goal lights on: ' + (lit.length
     ? lit.map(cell => `${position(cell, size)}, ${shapes[cell]} light`).join('; ') : 'none'))
   byId('goal').replaceChildren(goal)
-  byId('split-legend').hidden = !puzzle.split
   board.style.setProperty('--size', size)
   board.classList.toggle('wrap', puzzle.wrap)
   board.setAttribute('aria-label', `${size} by ${size} light board. Use arrow keys to move and Space to press.`)
