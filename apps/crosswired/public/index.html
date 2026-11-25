@@ -14,59 +14,65 @@
 <body>
   <main class="shell">
     <header class="game-header">
-      <a href="/">Daily Den</a>
+      <a class="home-link" href="/">Daily Den</a>
       <div class="title-row">
-        <h1>Crosswired</h1>
+        <div class="game-identity">
+          <h1>Crosswired</h1>
+          <p class="game-edition">
+            <span id="day-number"></span><span class="game-date"><span id="day-label"></span> · </span>
+            <strong>Beta</strong><span class="beta-notice"> · Still in development</span><span id="replay-mode" hidden> · Practice</span>
+          </p>
+        </div>
         <div class="title-actions">
-          <button id="help-button" type="button">How to play</button>
+          <button id="help-button" type="button" aria-label="How to play"><span class="help-text">How to play</span><span class="help-icon" aria-hidden="true">?</span></button>
           <button id="settings-button" class="settings-icon" type="button" aria-label="Settings" aria-haspopup="dialog"><span aria-hidden="true">⚙️</span></button>
         </div>
       </div>
-      <p id="day-label"></p>
-      <p class="beta-notice"><strong>Beta</strong> <span>·</span> Still in development</p>
     </header>
     <p id="loading" role="status">Loading today’s puzzles…</p>
     <aside id="rollover" hidden><button id="open-today" type="button">Open today’s puzzles</button></aside>
-    <aside id="replay-mode" hidden>
-      <span>Practice replay</span>
-      <button id="exit-replay" type="button">Back to daily result</button>
-    </aside>
     <div id="play" class="layout" hidden>
       <section class="console" aria-labelledby="puzzle">
-        <div class="puzzle-heading"><h2 id="puzzle" tabindex="-1"></h2><span id="tier"></span></div>
+        <div class="puzzle-heading">
+          <h2 id="puzzle" tabindex="-1"></h2>
+          <div class="puzzle-meta">
+            <button id="view-tip" type="button" aria-label="Read mechanic tip" aria-controls="mechanic-tip" hidden>Tip</button>
+            <span id="tier"></span>
+          </div>
+        </div>
         <p id="daily-tip">Each press flips a hidden pattern of lights. Watch what changes.</p>
         <dl class="counters">
           <div><dt>Presses</dt><dd id="presses">0</dd></div>
           <div><dt>Par</dt><dd id="par"></dd></div>
           <div><dt>Restarts</dt><dd id="restarts">0</dd></div>
         </dl>
-        <div class="board-section">
-          <div>
-            <div class="board" id="board" role="group" aria-label="Light board"></div>
-            <div id="mechanic-tip" class="mechanic-tip" hidden>
-              <ul id="mechanic-tip-list" class="mechanics"></ul>
-              <button id="dismiss-tip" type="button">Got it</button>
-            </div>
-          </div>
-          <div class="goal-panel">
-            <strong>Goal</strong>
-            <div id="goal"></div>
-            <span id="goal-name"></span>
+        <div class="board" id="board" role="group" aria-label="Light board"></div>
+        <div class="action-dock">
+          <p id="result" class="result" hidden></p>
+          <div class="actions">
+            <button id="restart" type="button" title="Restore the starting lights and keep the press count">Restart</button>
+            <button id="hint" type="button">Hint <span id="hint-cost">· costs 2 presses</span></button>
+            <button id="next" type="button" class="primary" hidden>Next puzzle</button>
           </div>
         </div>
-        <p id="result" class="result" hidden></p>
         <p id="announcement" class="sr-only" role="status" aria-atomic="true"></p>
         <p id="tip-announcement" class="sr-only" role="status" aria-atomic="true"></p>
-        <div class="actions">
-          <button id="restart" type="button" title="Restore the starting lights and keep the press count">Restart</button>
-          <button id="hint" type="button">Hint <span id="hint-cost">· costs 2 presses</span></button>
-          <button id="next" type="button" class="primary" hidden>Next puzzle</button>
+        <div id="mechanic-tip" class="mechanic-tip" hidden>
+          <ul id="mechanic-tip-list" class="mechanics"></ul>
+          <button id="dismiss-tip" type="button">Got it</button>
         </div>
       </section>
-      <aside class="history-panel">
-        <h2>Last 3 presses</h2>
-        <p id="empty-history">Flipped lights will appear here.</p>
-        <ol id="history" class="history" aria-label="Recent presses"></ol>
+      <aside class="reference-panel">
+        <section class="goal-panel" aria-labelledby="goal-heading">
+          <h2 id="goal-heading">Goal</h2>
+          <div id="goal"></div>
+          <span id="goal-name"></span>
+        </section>
+        <section class="history-panel" aria-labelledby="history-heading">
+          <h2 id="history-heading">Last 3 presses</h2>
+          <p id="empty-history">Flipped lights will appear here.</p>
+          <ol id="history" class="history" aria-label="Recent presses"></ol>
+        </section>
       </aside>
     </div>
     <section id="complete" class="console results" hidden aria-labelledby="complete-heading">
@@ -102,7 +108,11 @@
         <span class="switch-track" aria-hidden="true"></span>
       </span>
     </label>
-    <button id="reset-tips" type="button">Show tips again</button>
+    <div class="settings-actions">
+      <button id="reset-tips" type="button">Show tips again</button>
+      <button id="exit-replay" type="button" hidden>Back to daily result</button>
+      <a class="settings-home" href="/">Daily Den</a>
+    </div>
   </dialog>
   <dialog id="help" aria-labelledby="help-heading">
     <h2 id="help-heading">How to play</h2>
