@@ -91,8 +91,6 @@ button.primary { background: var(--gold); color: #222018; border-color: var(--go
 .board.wrap::before, .board.wrap::after { position: absolute; z-index: 2; color: var(--cyan); background: var(--panel); font: 700 .8rem/1 monospace; pointer-events: none; }
 .board.wrap::before { content: '↔'; top: -.62rem; left: 50%; padding-inline: .25rem; }
 .board.wrap::after { content: '↕'; right: -.45rem; top: 50%; padding-block: .25rem; }
-.mechanics { margin: .55rem 0 0; padding: 0; list-style: none; color: var(--muted); font-size: .84rem; line-height: 1.45; }
-.mechanics li + li { margin-top: .4rem; }
 .mechanic-tip {
   display: flex;
   flex-wrap: wrap;
@@ -103,7 +101,8 @@ button.primary { background: var(--gold); color: #222018; border-color: var(--go
   border: 1px solid var(--cyan);
   border-radius: .38rem;
 }
-.mechanic-tip .mechanics { flex: 1 1 12rem; margin: 0; color: inherit; }
+.mechanic-tip .mechanics { flex: 1 1 12rem; margin: 0; padding: 0; list-style: none; font-size: .84rem; line-height: 1.45; }
+.mechanic-tip li + li { margin-top: .4rem; }
 .mechanic-tip button, #reset-tips { font-size: .84rem; }
 .tip-target:not(:focus-visible) { outline: 2px solid var(--cyan); outline-offset: 1px; }
 .board.tip-edge { outline-width: 2px; outline-style: solid; }
