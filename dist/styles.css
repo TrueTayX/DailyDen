@@ -89,7 +89,8 @@ h1, h2, h3, p { margin: 0; }
   list-style: none;
 }
 .game-grid > li { display: flex; }
-.game { display: flex; flex: 1; flex-direction: column; background: var(--paper); border: 1px solid var(--rule); }
+.game { display: flex; flex: 1; flex-direction: column; background: var(--paper); border: 1px solid var(--rule); color: inherit; text-decoration: none; }
+.game:focus-visible { outline: 3px solid #594d99; outline-offset: 4px; }
 
 .game-art {
   min-height: 9.75rem;
@@ -155,9 +156,8 @@ h1, h2, h3, p { margin: 0; }
 }
 .game h3 + p { margin: .55rem 0 1.15rem; color: #454960; line-height: 1.55; }
 .play { margin-top: auto; min-height: 2.75rem; display: inline-flex; align-items: center; gap: .65rem; font-size: .95rem; font-weight: 700; }
-.play { padding: .55rem .8rem; background: var(--ink); color: #fffdf6; text-decoration: none; }
-.play:hover { background: #3a436b; text-decoration: underline; }
-.play:focus-visible { outline: 3px solid #594d99; outline-offset: 4px; }
+.play { padding: .55rem .8rem; background: var(--ink); color: #fffdf6; }
+.game:is(:hover, :focus-visible) .play { background: #3a436b; text-decoration: underline; }
 
 .privacy-page { max-width: 42rem; line-height: 1.6; }
 .privacy-page a { color: inherit; text-underline-offset: .18em; }
