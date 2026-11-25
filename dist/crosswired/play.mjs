@@ -16,7 +16,6 @@ const contrast = byId('contrast')
 const help = byId('help')
 const mechanicTip = byId('mechanic-tip')
 const tipList = byId('mechanic-tip-list')
-const modifierLegend = byId('modifiers')
 const tipAnnouncement = byId('tip-announcement')
 const mechanics = [
   { id: 'locked', target: '.blocked', text: "Locked cells can't be pressed. They can still light up or go dark when other presses flip them." },
@@ -60,10 +59,7 @@ function fields(round, puzzle) {
     hintUsed: round.hints > 0, assistUsed: round.assisted }
 }
 
-function renderMechanics() {
-  const legend = boardMechanics.filter(mechanic => !visibleTips.includes(mechanic))
-  modifierLegend.replaceChildren(...legend.map(({ text }) => node('li', '', text)))
-  modifierLegend.hidden = legend.length === 0
+function renderMechanicTips() {
   tipList.replaceChildren(...visibleTips.map(({ text }) => node('li', '', text)))
   mechanicTip.hidden = visibleTips.length === 0
   board.querySelectorAll('.tip-target').forEach(cell => cell.classList.remove('tip-target'))
@@ -78,7 +74,7 @@ function showMechanicTips() {
   const puzzle = day.puzzles[index]
   visibleTips = round.bits === puzzle.goal.bits ? []
     : boardMechanics.filter(({ id }) => !store.read('seen:' + id, false))
-  renderMechanics()
+  renderMechanicTips()
   tipAnnouncement.textContent = visibleTips.map(({ text }) => text).join(' ')
   for (const { id } of visibleTips) {
     store.write('seen:' + id, true)
@@ -93,7 +89,7 @@ function dismissMechanicTips(reason) {
     record('tip_dismissed', { mechanic: id, index: day.puzzles[index].index, reason })
   }
   visibleTips = []
-  renderMechanics()
+  renderMechanicTips()
   tipAnnouncement.textContent = ''
   if (restoreFocus) cells[selected]?.focus({ preventScroll: true })
 }
