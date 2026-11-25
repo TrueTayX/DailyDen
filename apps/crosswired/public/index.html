@@ -40,7 +40,11 @@
         <div class="board-section">
           <div>
             <div class="board" id="board" role="group" aria-label="Light board"></div>
-            <p id="modifiers" class="modifiers"></p>
+            <div id="mechanic-tip" class="mechanic-tip" hidden>
+              <ul id="mechanic-tip-list" class="mechanics"></ul>
+              <button id="dismiss-tip" type="button">Got it</button>
+            </div>
+            <ul id="modifiers" class="mechanics" hidden></ul>
           </div>
           <div class="goal-panel">
             <strong>Goal</strong>
@@ -50,6 +54,7 @@
         </div>
         <p id="result" class="result" hidden></p>
         <p id="announcement" class="sr-only" role="status" aria-atomic="true"></p>
+        <p id="tip-announcement" class="sr-only" role="status" aria-atomic="true"></p>
         <div class="actions">
           <button id="restart" type="button" title="Restore the starting lights and keep the press count">Restart</button>
           <button id="hint" type="button">Hint <span id="hint-cost">· costs 2 presses</span></button>
@@ -65,6 +70,7 @@
             <legend>Display options</legend>
             <label><input id="assist" type="checkbox"> Outline cells that still differ</label>
             <label><input id="contrast" type="checkbox"> High contrast</label>
+            <button id="reset-tips" type="button">Show tips again</button>
           </fieldset>
         </div>
       </aside>
@@ -89,6 +95,8 @@
       <li>Match the board to the goal picture. Aim for par, the fewest possible presses.</li>
       <li>Finish all four puzzles to complete the day. Restart keeps your press count. A hint suggests a move and costs two presses.</li>
     </ol>
+    <h2>Board variations</h2>
+    <ul id="help-mechanics"></ul>
     <form method="dialog"><button class="primary">Play</button></form>
   </dialog>
   <!-- site-footer:start -->
