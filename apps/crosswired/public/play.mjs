@@ -158,6 +158,7 @@ function refreshBoard() {
     : suggestion != null ? `Try ${position(suggestion, puzzle.size)}. Hint added ${HINT_COST} presses.` : ''
   result.hidden = !result.textContent
   result.classList.toggle('result--hint', suggestion != null)
+  result.parentElement.classList.toggle('action-dock--solved', solved)
   hint.hidden = solved
   hint.disabled = suggestion != null
   restart.hidden = solved
@@ -168,8 +169,11 @@ function refreshBoard() {
     const row = node('li')
     const mask = columns[cell] ?? 0n
     const flipped = cellsIn(puzzle.size).filter(i => hasBit(mask, i))
-    row.append(miniature(mask, puzzle.size, { current: cell }), node('span', 'history-label', position(cell, puzzle.size)),
-      node('span', 'sr-only', 'Flipped ' + (flipped.map(i => position(i, puzzle.size)).join('; ') || 'no lights')))
+    const [r, c] = cellCoordinates(cell, puzzle.size)
+    const label = node('span', 'history-label', `R${r + 1} C${c + 1}`)
+    label.setAttribute('aria-hidden', 'true')
+    row.append(miniature(mask, puzzle.size, { current: cell }), label,
+      node('span', 'sr-only', `Pressed ${position(cell, puzzle.size)}. Flipped ` + (flipped.map(i => position(i, puzzle.size)).join('; ') || 'no lights')))
     return row
   }))
 }
@@ -315,6 +319,7 @@ function renderResults() {
 function setReplay(active) {
   replaying = active
   byId('replay-mode').hidden = !active
+  byId('exit-replay').hidden = !active
   byId('manual-copy').hidden = true
   byId('share-status').textContent = ''
 }
@@ -366,7 +371,8 @@ async function load() {
     byId('rollover').hidden = true
     byId('open-today').textContent = 'Open today’s puzzles'
     const label = new Intl.DateTimeFormat('en-US', { dateStyle: 'long', timeZone: 'UTC' }).format(new Date(day.date))
-    byId('day-label').textContent = `#${day.number} · ${label}`
+    byId('day-number').textContent = `#${day.number}`
+    byId('day-label').textContent = label
     renderPuzzle()
     if (!settings.introSeen && index === 0 && !review) help.showModal()
   } catch {
@@ -443,6 +449,7 @@ byId('replay').addEventListener('click', () => {
 })
 byId('exit-replay').addEventListener('click', () => {
   if (pending) return
+  settingsDialog.close()
   setReplay(false)
   rounds = readRounds()
   index = day.puzzles.length
