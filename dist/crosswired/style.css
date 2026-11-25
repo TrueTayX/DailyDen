@@ -69,7 +69,7 @@ button.primary { background: var(--gold); color: #222018; border-color: var(--go
 .board-section { display: grid; grid-template-columns: minmax(0, 1fr) clamp(3.35rem, 17%, 5.5rem); gap: .65rem; align-items: start; }
 .board { gap: .3rem; }
 .light { min-height: 44px; min-width: 44px; position: relative; }
-.light.marked .bulb { border-radius: 22%; }
+.light[data-shape="square"] .bulb { border-radius: 3px; }
 .light.blocked { border-style: dashed; border-color: var(--off-ring); cursor: default; }
 .lock-badge {
   position: absolute;
@@ -106,9 +106,12 @@ button.primary { background: var(--gold); color: #222018; border-color: var(--go
 .mechanic-tip button, #reset-tips { font-size: .84rem; }
 .tip-target:not(:focus-visible) { outline: 2px solid var(--cyan); outline-offset: 1px; }
 .board.tip-edge { outline-width: 2px; outline-style: solid; }
+#split-legend { display: flex; align-items: center; gap: .4rem; margin-bottom: .65rem; color: var(--muted); font-size: .84rem; }
+#split-legend::before { content: ''; flex: 0 0 .66rem; aspect-ratio: 1; border: 1px solid currentColor; border-radius: 1px; }
 #goal-name { display: block; font-size: .72rem; margin-top: .3rem; overflow-wrap: anywhere; }
 .goal-panel { text-align: center; display: grid; gap: .35rem; }
 .mini.goal span { background: transparent; border: 1px solid var(--off-ring); border-radius: 50%; }
+.mini.goal [data-shape="square"] { border-radius: 1px; }
 .mini.goal .flip { background: var(--gold); border-color: var(--gold); }
 .settings-panel { margin-top: 1rem; padding-top: .7rem; border-top: 1px solid var(--line); }
 .settings { display: grid; gap: .35rem; min-width: 0; border: 0; margin: 0; padding: 0; color: var(--muted); }

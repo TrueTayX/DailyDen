@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict'
+import { readFile } from 'node:fs/promises'
 import test from 'node:test'
 import { bit, applyPresses, asBits, asMask, flipSets, stampMask } from '../public/engine.mjs'
 import { STAMPS } from '../public/stamps.mjs'
 import { applyMove, freshRound, rating, restoreRound, shareResult } from '../public/game.mjs'
+import { lightShapes } from '../public/lights.mjs'
 import { generateCalendar } from '../scripts/calendar.mjs'
 import { solve } from '../public/solver.mjs'
 import { independentPar } from '../scripts/independent-par.mjs'
@@ -16,6 +18,15 @@ const puzzle = {
   start: asBits(bit(35) | bit(2) | bit(1) | bit(9), 6),
   goal: { name: 'target', bits: asBits(bit(3), 6) },
 }
+
+test('the shared board and goal shape map follows Split positions in the calendar and reserves', async () => {
+  const { calendar, pool } = JSON.parse(await readFile(new URL('../content/calendar.json', import.meta.url), 'utf8'))
+  for (const puzzle of [...calendar.flatMap(day => day.puzzles), ...pool]) {
+    const expected = Array(puzzle.size ** 2).fill('round')
+    for (const [row, column] of puzzle.split?.marked ?? []) expected[row * puzzle.size + column] = 'square'
+    assert.deepEqual(lightShapes(puzzle), expected, puzzle.id)
+  }
+})
 
 test('stamps clip and wrap, split uses the selected family, and locked cells stay in the light system', () => {
   assert.equal(stampMask(named('domino-right'), 6, 35), bit(35))
