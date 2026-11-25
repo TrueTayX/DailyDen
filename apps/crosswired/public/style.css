@@ -63,6 +63,9 @@ button.primary { background: var(--gold); color: #222018; border-color: var(--go
 
 .game-header > a { display: inline-block; color: var(--muted); padding-block: .25rem; margin-bottom: .55rem; }
 .title-row, .puzzle-heading { display: flex; gap: .55rem 1rem; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+.title-actions { display: flex; gap: .5rem; align-items: center; }
+button.settings-icon { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border-radius: 50%; }
+button.settings-icon:hover { background: #29363a; }
 #day-label, #tier, #daily-tip, #goal-name { color: var(--muted); font-size: .84rem; }
 #daily-tip { line-height: 1.4; margin-top: .45rem; }
 #tier { text-transform: capitalize; }
@@ -111,18 +114,44 @@ button.primary { background: var(--gold); color: #222018; border-color: var(--go
 .mini.goal span { background: transparent; border: 1px solid var(--off-ring); border-radius: 50%; }
 .mini.goal [data-shape="square"] { border-radius: 1px; }
 .mini.goal .flip { background: var(--gold); border-color: var(--gold); }
-.settings-panel { margin-top: 1rem; padding-top: .7rem; border-top: 1px solid var(--line); }
-.settings { display: grid; gap: .35rem; min-width: 0; border: 0; margin: 0; padding: 0; color: var(--muted); }
-.settings legend { font-size: .8rem; padding: 0 0 .2rem; }
-.settings label { display: flex; gap: .4rem; align-items: center; font-size: .88rem; min-height: 38px; }
-.settings input { accent-color: var(--gold); }
-#reset-tips { justify-self: start; }
 button, dialog { background: var(--panel); color: inherit; border: 1px solid var(--line); border-radius: .38rem; padding: .52rem .7rem; }
 button { min-height: 44px; }
 button[aria-pressed="true"] { border-color: var(--cyan); color: var(--cyan); }
 dialog { padding: 1.2rem; width: min(calc(100% - 2rem), 27rem); }
 dialog::backdrop { background: #000a; }
 dialog li { margin-bottom: .65rem; line-height: 1.5; }
+#settings-dialog { border-radius: 1.125rem; max-width: 420px; }
+#settings-heading { margin-bottom: .75rem; padding-right: 2.5rem; font: 750 1.35rem/1.25 system-ui, sans-serif; }
+.settings-close {
+  position: absolute;
+  top: .35rem;
+  right: .45rem;
+  width: 44px;
+  padding: 0;
+  border-color: transparent;
+  color: var(--muted);
+  font-size: 1.6rem;
+  line-height: 1;
+}
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 44px;
+  padding-block: .48rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.setting-row small { display: block; margin-top: .15rem; color: var(--muted); font-size: .82rem; font-weight: 400; }
+.setting-switch { position: relative; flex: 0 0 50px; display: grid; place-items: center; height: 44px; }
+.setting-switch input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.switch-track { width: 50px; height: 28px; padding: 2px; border: 1px solid var(--off-ring); border-radius: 999px; background: var(--panel); pointer-events: none; }
+.switch-track::before { content: ''; display: block; width: 22px; height: 22px; border-radius: 50%; background: var(--muted); }
+.setting-switch input:checked + .switch-track { border-color: var(--cyan); background: var(--cyan); }
+.setting-switch input:checked + .switch-track::before { transform: translateX(22px); background: #111619; }
+.setting-switch input:focus-visible + .switch-track { outline: 3px solid var(--cyan); outline-offset: 4px; }
+#reset-tips { margin-top: .75rem; }
 .results > * + * { margin-top: .6rem; }
 .results { max-width: 38rem; }
 .results textarea { width: 100%; }
