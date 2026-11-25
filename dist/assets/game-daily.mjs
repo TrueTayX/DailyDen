@@ -42,6 +42,13 @@ export function gameStorage(gameId, storage) {
         catch { persistent = false }
       }
     },
+    remove(key) {
+      memory.delete(key)
+      if (persistent) {
+        try { storage.removeItem(prefix + key) }
+        catch { persistent = false }
+      }
+    },
     get persistent() { return persistent },
   }
 }

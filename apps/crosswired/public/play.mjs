@@ -14,6 +14,15 @@ const result = byId('result')
 const assist = byId('assist')
 const contrast = byId('contrast')
 const help = byId('help')
+const mechanicTip = byId('mechanic-tip')
+const tipList = byId('mechanic-tip-list')
+const modifierLegend = byId('modifiers')
+const tipAnnouncement = byId('tip-announcement')
+const mechanics = [
+  { id: 'locked', target: '.blocked', text: "Locked cells can't be pressed. They can still light up or go dark when other presses flip them." },
+  { id: 'split', target: '.marked', text: 'Marked cells follow a different hidden pattern from unmarked ones.' },
+  { id: 'wrap', target: null, text: 'Edges wrap around: a pattern that runs off one side comes back on the opposite side.' },
+]
 const review = document.documentElement.dataset.review === 'true'
 const requestedDate = review ? new URLSearchParams(location.search).get('date') : null
 let storage
@@ -25,6 +34,8 @@ let settings = safeObject(store.read('settings', {}))
 let day, rounds, index, columns, cells, flashTimer, selected = 0, pending = false
 let abandoned = false
 let replaying = false
+let boardMechanics = []
+let visibleTips = []
 
 function node(tag, className, text) {
   const el = document.createElement(tag)
@@ -47,6 +58,44 @@ function record(event, detail = {}) {
 function fields(round, puzzle) {
   return { index: puzzle.index, presses: round.presses, par: puzzle.par, restarts: round.restarts,
     hintUsed: round.hints > 0, assistUsed: round.assisted }
+}
+
+function renderMechanics() {
+  const legend = boardMechanics.filter(mechanic => !visibleTips.includes(mechanic))
+  modifierLegend.replaceChildren(...legend.map(({ text }) => node('li', '', text)))
+  modifierLegend.hidden = legend.length === 0
+  tipList.replaceChildren(...visibleTips.map(({ text }) => node('li', '', text)))
+  mechanicTip.hidden = visibleTips.length === 0
+  board.querySelectorAll('.tip-target').forEach(cell => cell.classList.remove('tip-target'))
+  board.classList.toggle('tip-edge', visibleTips.some(({ id }) => id === 'wrap'))
+  for (const { target } of visibleTips) {
+    if (target) board.querySelector(target)?.classList.add('tip-target')
+  }
+}
+
+function showMechanicTips() {
+  const round = rounds[index]
+  const puzzle = day.puzzles[index]
+  visibleTips = round.bits === puzzle.goal.bits ? []
+    : boardMechanics.filter(({ id }) => !store.read('seen:' + id, false))
+  renderMechanics()
+  tipAnnouncement.textContent = visibleTips.map(({ text }) => text).join(' ')
+  for (const { id } of visibleTips) {
+    store.write('seen:' + id, true)
+    record('tip_shown', { mechanic: id, index: puzzle.index })
+  }
+}
+
+function dismissMechanicTips(reason) {
+  if (!visibleTips.length) return
+  const restoreFocus = mechanicTip.contains(document.activeElement)
+  for (const { id } of visibleTips) {
+    record('tip_dismissed', { mechanic: id, index: day.puzzles[index].index, reason })
+  }
+  visibleTips = []
+  renderMechanics()
+  tipAnnouncement.textContent = ''
+  if (restoreFocus) cells[selected]?.focus({ preventScroll: true })
 }
 
 function miniature(mask, size, current) {
@@ -87,7 +136,6 @@ function refreshBoard() {
   const solved = round.bits === puzzle.goal.bits
   const currentRating = solved ? rating(round, puzzle) : ''
   const suggestion = solved ? null : round.suggestion
-  const marked = new Set(puzzle.split?.marked.map(([r, c]) => r * puzzle.size + c))
   cells.forEach((button, cell) => {
     const on = round.bits[cell] === '1'
     const blocked = columns[cell] === null
@@ -99,7 +147,7 @@ function refreshBoard() {
     button.setAttribute('aria-disabled', String(blocked || solved))
     button.setAttribute('aria-label', [
       position(cell, puzzle.size), on ? 'on' : 'off', blocked ? 'locked' : '',
-      puzzle.split && marked.has(cell) ? 'diamond' : '',
+      button.classList.contains('marked') ? 'marked' : '',
       cell === suggestion ? 'suggested move' : '',
       assist.checked && round.bits[cell] !== puzzle.goal.bits[cell] ? 'differs from goal' : '',
     ].filter(Boolean).join(', '))
@@ -144,7 +192,8 @@ function renderPuzzle() {
   byId('tier').textContent = puzzle.tier
   byId('daily-tip').hidden = index !== 0
   byId('par').textContent = puzzle.par
-  byId('goal-name').textContent = puzzle.goal.name
+  byId('goal-name').textContent = ['fourfold pattern', 'mirror pattern'].includes(puzzle.goal.name)
+    ? 'symmetric pattern' : puzzle.goal.name
   const goal = miniature(asMask(puzzle.goal.bits), size)
   goal.classList.add('goal')
   goal.removeAttribute('aria-hidden')
@@ -152,12 +201,6 @@ function renderPuzzle() {
   const lit = cellsIn(size).filter(cell => puzzle.goal.bits[cell] === '1')
   goal.setAttribute('aria-label', 'Goal lights on: ' + (lit.length ? lit.map(cell => position(cell, size)).join('; ') : 'none'))
   byId('goal').replaceChildren(goal)
-  const modifierLabels = []
-  if (puzzle.wrap) modifierLabels.push('↔ ↕ Wrap')
-  if (puzzle.split) modifierLabels.push('◆ Split')
-  if (puzzle.blocked.length) modifierLabels.push('🔒 Locked cells')
-  byId('modifiers').textContent = modifierLabels.join(' · ')
-  byId('modifiers').hidden = !modifierLabels.length
   board.style.setProperty('--size', size)
   board.classList.toggle('wrap', puzzle.wrap)
   board.setAttribute('aria-label', `${size} by ${size} light board. Use arrow keys to move and Space to press.`)
@@ -168,10 +211,11 @@ function renderPuzzle() {
     button.append(node('span', 'bulb'))
     const blocked = columns[cell] === null
     button.classList.toggle('blocked', blocked)
-    if (blocked || marked.has(cell)) {
-      const marker = node('span', 'light-mark', (marked.has(cell) ? '◆' : '') + (blocked ? '🔒' : ''))
-      marker.setAttribute('aria-hidden', 'true')
-      button.append(marker)
+    button.classList.toggle('marked', marked.has(cell))
+    if (blocked) {
+      const badge = node('span', 'lock-badge')
+      badge.setAttribute('aria-hidden', 'true')
+      button.append(badge)
     }
     button.addEventListener('click', () => {
       if (columns[cell] === null) return
@@ -193,6 +237,8 @@ function renderPuzzle() {
     return button
   })
   board.replaceChildren(...cells)
+  boardMechanics = mechanics.filter(({ target }) => target ? board.querySelector(target) : puzzle.wrap)
+  showMechanicTips()
   if (assist.checked && !round.assisted && round.bits !== puzzle.goal.bits) void perform('assist')
   refreshBoard()
 }
@@ -219,7 +265,10 @@ async function perform(type, cell) {
     if (type === 'hint') selected = after.suggestion
     refreshBoard()
     if (type === 'restart') announcement.textContent = 'Board restored. Press count kept.'
-    if (type === 'press') flash(columns[cell], 'Flipped:', puzzle.size)
+    if (type === 'press') {
+      dismissMechanicTips('press')
+      flash(columns[cell], 'Flipped:', puzzle.size)
+    }
     if (type === 'hint') {
       flash(columns[selected], `Hint added ${HINT_COST} presses. Try ${position(selected, puzzle.size)}. Would flip:`, puzzle.size)
       cells[selected].focus({ preventScroll: true })
@@ -357,6 +406,18 @@ contrast.addEventListener('change', () => {
   store.write('settings', settings)
   document.documentElement.classList.toggle('high-contrast', contrast.checked)
 })
+byId('dismiss-tip').addEventListener('click', () => dismissMechanicTips('got_it'))
+byId('play').addEventListener('keydown', event => {
+  if (event.key !== 'Escape' || !visibleTips.length) return
+  event.preventDefault()
+  dismissMechanicTips('escape')
+})
+byId('reset-tips').addEventListener('click', () => {
+  dismissMechanicTips('reset')
+  for (const { id } of mechanics) store.remove('seen:' + id)
+  showMechanicTips()
+})
+byId('help-mechanics').replaceChildren(...mechanics.map(({ text }) => node('li', '', text)))
 byId('help-button').addEventListener('click', () => help.showModal())
 help.addEventListener('close', () => {
   settings = { ...settings, introSeen: true }

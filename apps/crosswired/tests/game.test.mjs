@@ -94,5 +94,24 @@ test('Pacific rollover handles both offsets and storage failure falls back to me
   assert.equal(store.read('key', 0), 0)
   store.write('key', 3)
   assert.equal(store.read('key', 0), 3)
+  store.remove('key')
+  assert.equal(store.read('key', 0), 0)
   assert.equal(store.persistent, false)
+})
+
+test('resetting a seen tip removes only its key from browser storage', () => {
+  const data = new Map()
+  const storage = {
+    getItem: key => data.get(key) ?? null,
+    setItem: (key, value) => data.set(key, value),
+    removeItem: key => data.delete(key),
+  }
+  const store = gameStorage('crosswired', storage)
+  store.write('seen:wrap', true)
+  store.write('settings', { contrast: true })
+  store.remove('seen:wrap')
+  const reopened = gameStorage('crosswired', storage)
+  assert.equal(reopened.read('seen:wrap', false), false)
+  assert.deepEqual(reopened.read('settings', {}), { contrast: true })
+  assert.equal(data.has('crosswired:v1:seen:wrap'), false)
 })
