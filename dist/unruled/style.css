@@ -93,6 +93,8 @@ h1, h2, h3, p { margin-top: 0; }
 h1 { margin-bottom: .4rem; font: 700 clamp(2.1rem, 5vw, 3.1rem)/1.06 var(--display-font); text-transform: uppercase; letter-spacing: .02em; }
 .play-header h1 { margin: 0; font-size: clamp(1.73rem, 4.1vw, 2.75rem); }
 .challenge-date { display: block; margin-top: .36rem; color: var(--muted); font-size: .86rem; }
+.beta-notice { grid-column: 1 / -1; margin: 0; color: var(--muted); font-size: .85rem; }
+.beta-notice strong { color: var(--accent); }
 .panel-description { color: var(--muted); margin: .3rem 0 0; line-height: 1.45; }
 
 .progress { width: clamp(6.25rem, 19vw, 10.75rem); }
