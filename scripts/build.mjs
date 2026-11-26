@@ -18,7 +18,7 @@ try {
   const crosswired = join(root, 'apps', CROSSWIRED)
   const archive = JSON.parse(await readFile(join(crosswired, 'content/calendar.json'), 'utf8'))
   const through = (await readFile(join(crosswired, 'content/published-through.txt'), 'utf8')).trim()
-  if (!archive.calendar.some(day => day.date === through)) throw new Error('Invalid Crosswired release date')
+  if (!archive.calendar.some(day => day.date === through)) throw new Error('Invalid SwitchLight release date')
   await cp(join(crosswired, 'public'), join(staging, CROSSWIRED), { recursive: true })
   await writeFile(join(staging, CROSSWIRED, 'calendar.json'), JSON.stringify(publicCalendar(archive, through)) + '\n')
   const shell = join(root, 'packages/shell')
@@ -32,7 +32,7 @@ try {
     'privacy.html': 'Daily Den privacy question',
     'unruled/index.html': 'Unruled feedback',
     'unruled/privacy.html': 'Unruled feedback',
-    [`${CROSSWIRED}/index.html`]: 'Crosswired feedback',
+    [`${CROSSWIRED}/index.html`]: 'SwitchLight feedback',
   }
   const slot = /^  <!-- site-footer:start -->[\s\S]*?<!-- site-footer:end -->/m
   for (const [page, subject] of Object.entries(footerPages)) {
@@ -53,7 +53,7 @@ try {
   await rm(gameHeaders)
   await rm(output, { recursive: true, force: true })
   await rename(staging, output)
-  console.log('Built Daily Den, Unruled, and Crosswired in dist/.')
+  console.log('Built Daily Den, Unruled, and SwitchLight in dist/.')
 } finally {
   await rm(staging, { recursive: true, force: true })
 }

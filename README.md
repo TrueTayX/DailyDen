@@ -4,7 +4,7 @@ Daily Den is a home for daily puzzle games at [dailyden.games](https://dailyden.
 
 - `apps/home/` is the homepage.
 - `apps/unruled/` contains Unruled, previously called Rulebreaker, including its source, dated puzzle catalog, tests, and analytics migration.
-- `apps/crosswired/` contains Crosswired, its generator, and the daily calendar.
+- `apps/crosswired/` contains SwitchLight, its generator, and the daily calendar.
 - Lineup.Day opens the existing site at [lineup.day](https://lineup.day/).
 
 ## Upload to Cloudflare Pages
@@ -32,15 +32,15 @@ Connect this repository, set the build command to `npm run build`, and set the b
 
 Unruled keeps its existing storage keys. Browser saves from a different origin, such as the private playtest, stay with that origin.
 
-## Crosswired calendar
+## SwitchLight calendar
 
-Crosswired uses midnight in `America/Los_Angeles` and has four puzzles per day. Lineup.Day uses the browser’s local date. A fixed timezone keeps the static publication schedule consistent for everyone. The release workflow runs shortly after midnight in both Pacific offsets. It advances `published-through.txt`, rebuilds `dist/`, and pushes the release to `main` for the connected Cloudflare Worker. Only released days are in `dist/`. The future archive and reserves are visible to readers of this repository.
+SwitchLight uses midnight in `America/Los_Angeles` and has four puzzles per day. Lineup.Day uses the browser’s local date. A fixed timezone keeps the static publication schedule consistent for everyone. The release workflow runs shortly after midnight in both Pacific offsets. It advances `published-through.txt`, rebuilds `dist/`, and pushes the release to `main` for the connected Cloudflare Worker. Only released days are in `dist/`. The future archive and reserves are visible to readers of this repository.
 
 Run `npm run crosswired:review -- YYYY-MM-DD` and serve `reports/crosswired/` locally to play through the next 14 days and read the metrics. Review builds include unreleased puzzles. Use `node apps/crosswired/scripts/swap.mjs RESERVE_ID` to replace an unpublished puzzle with a compatible reserve. Run `npm run build && npm run crosswired:verify` after changes.
 
 The 33 starter families cannot supply at least two new families per day under a 21-day cooldown. The scheduler enforces ten intervening days for each stamp family and ten for each concrete goal board. All-off and all-on warm-ups cycle separately. Five advanced families become eligible at two-week intervals. The generator balances uses within tier and probe limits. Human playtesting and difficulty calibration are editorial steps.
 
-## Crosswired interface
+## SwitchLight interface
 
 Square and round light shapes are reserved for Split. A Split partition assigns square lights to one hidden pattern and round lights to the other. The generator stores the square light positions in `split.marked`. Locks use a dashed tile outline and lock badge. Wrap uses edge arrows.
 

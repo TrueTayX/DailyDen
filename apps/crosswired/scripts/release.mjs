@@ -10,5 +10,5 @@ const today = dayKey(new Date(), TIME_ZONE)
 const through = today < archive.calendar.at(-1).date ? today : archive.calendar.at(-1).date
 if (through > current && archive.calendar.some(day => day.date === through)) {
   await writeFile(release, through + '\n')
-  console.log('Publishing Crosswired through ' + through)
-} else console.log('Crosswired release is current through ' + current)
+  console.log('Publishing SwitchLight through ' + through)
+} else console.log('SwitchLight release is current through ' + current)
