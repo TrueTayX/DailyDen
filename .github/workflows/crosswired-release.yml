@@ -1,4 +1,4 @@
-name: Publish SwitchLight
+name: Publish daily puzzles
 on:
   schedule:
     - cron: '8 7,8 * * *'
@@ -20,11 +20,13 @@ jobs:
       - name: Publish newly available days
         run: |
           node apps/crosswired/scripts/release.mjs
-          if git diff --quiet -- apps/crosswired/content/published-through.txt; then exit 0; fi
+          node apps/cropweave/scripts/release.mjs
+          if git diff --quiet -- apps/crosswired/content/published-through.txt apps/cropweave/content/published-through.txt; then exit 0; fi
           npm run build
           CROSSWIRED_BASE="$(git rev-parse HEAD)" npm run crosswired:verify
+          CROPWEAVE_BASE="$(git rev-parse HEAD)" npm run cropweave:verify
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add apps/crosswired/content/published-through.txt dist/
-          git commit -m "Publish the latest SwitchLight day"
+          git add apps/crosswired/content/published-through.txt apps/cropweave/content/published-through.txt dist/
+          git commit -m "Publish the latest Daily Den puzzles"
           git push origin HEAD:main

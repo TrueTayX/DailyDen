@@ -12,6 +12,10 @@ const temporary = await mkdtemp(resolve(dirname(dist), '.rulebreaker-build-'))
 try {
   await mkdir(temporary, { recursive: true })
   await cp(resolve(root, 'public'), temporary, { recursive: true })
+  await cp(resolve(root, '../../packages/game/daily.mjs'), resolve(temporary, 'src/game-daily.mjs'))
+  const calendar = resolve(temporary, 'src/calendar.mjs')
+  await writeFile(calendar, (await readFile(calendar, 'utf8'))
+    .replace('../../../../packages/game/daily.mjs', './game-daily.mjs'))
   const index = resolve(temporary, 'index.html')
   let html = await readFile(index, 'utf8')
   if (playtest) {

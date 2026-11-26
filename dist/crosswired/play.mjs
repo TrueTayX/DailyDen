@@ -1,5 +1,5 @@
-import { dayKey, dayStreak, gameStorage, copyText } from '../assets/game-daily.mjs'
-import { GAME_ID, GAME_NAME, TIME_ZONE, HINT_COST, RATINGS } from './config.mjs'
+import { getPuzzleDate, dayStreak, gameStorage, copyText } from '../assets/game-daily.mjs'
+import { GAME_ID, GAME_NAME, HINT_COST, RATINGS } from './config.mjs'
 import { asMask, cellCoordinates, cellsIn, countBits, flipSets, hasBit } from './engine.mjs'
 import { applyMove, freshRound, rating, restoreRound, shareResult } from './game.mjs'
 import { lightShapes } from './lights.mjs'
@@ -32,7 +32,7 @@ const requestedDate = review ? new URLSearchParams(location.search).get('date') 
 let storage
 try { if (!review) storage = window.localStorage } catch { /* play in this tab */ }
 const store = gameStorage(GAME_ID, storage)
-const today = () => dayKey(new Date(), TIME_ZONE)
+const today = () => getPuzzleDate()
 const safeObject = value => value && !Array.isArray(value) && typeof value === 'object' ? value : {}
 let settings = safeObject(store.read('settings', {}))
 let day, rounds, index, columns, cells, flashTimer, selected = 0, pending = false

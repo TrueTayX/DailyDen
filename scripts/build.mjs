@@ -4,6 +4,7 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { GAME_ID as CROSSWIRED } from '../apps/crosswired/public/config.mjs'
 import { publicCalendar } from '../apps/crosswired/scripts/publication.mjs'
+import { publicCalendar as cropCalendar } from '../apps/cropweave/scripts/publication.mjs'
 
 const root = fileURLToPath(new URL('../', import.meta.url))
 const build = ['--prefix', 'apps/unruled', 'run', 'build']
@@ -21,6 +22,18 @@ try {
   if (!archive.calendar.some(day => day.date === through)) throw new Error('Invalid SwitchLight release date')
   await cp(join(crosswired, 'public'), join(staging, CROSSWIRED), { recursive: true })
   await writeFile(join(staging, CROSSWIRED, 'calendar.json'), JSON.stringify(publicCalendar(archive, through)) + '\n')
+  const crop = join(root, 'apps/cropweave')
+  const cropArchive = JSON.parse(await readFile(join(crop, 'content/archive.json'), 'utf8'))
+  const cropThrough = (await readFile(join(crop, 'content/published-through.txt'), 'utf8')).trim()
+  if (!cropArchive.calendar.some(day => day.date === cropThrough)) throw new Error('Invalid CropWeave release date')
+  const cropOutput = join(staging, 'cropweave')
+  await cp(join(crop, 'public'), cropOutput, { recursive: true })
+  await writeFile(join(cropOutput, 'calendar.json'), JSON.stringify(cropCalendar(cropArchive, cropThrough)) + '\n')
+  if (process.argv.includes('--cropweave-analytics')) {
+    const cropIndex = join(cropOutput, 'index.html')
+    const html = await readFile(cropIndex, 'utf8')
+    await writeFile(cropIndex, html.replace('</head>', '  <meta name="cropweave-analytics" content="./api/events">\n</head>'))
+  }
   const shell = join(root, 'packages/shell')
   const footer = (await readFile(join(shell, 'footer.html'), 'utf8')).trimEnd().replace(/^/gm, '  ')
   const assets = join(staging, 'assets')
@@ -33,13 +46,16 @@ try {
     'unruled/index.html': 'Unruled feedback',
     'unruled/privacy.html': 'Unruled feedback',
     [`${CROSSWIRED}/index.html`]: 'SwitchLight feedback',
+    'cropweave/index.html': 'CropWeave Beta feedback',
   }
   const slot = /^  <!-- site-footer:start -->[\s\S]*?<!-- site-footer:end -->/m
   for (const [page, subject] of Object.entries(footerPages)) {
     const path = join(staging, page)
     const html = await readFile(path, 'utf8')
     if (!slot.test(html)) throw new Error(`Missing site footer slot in ${page}`)
-    const footerHtml = footer.replace('__FEEDBACK_SUBJECT__', encodeURIComponent(subject))
+    let footerHtml = footer.replace('__FEEDBACK_SUBJECT__', encodeURIComponent(subject))
+    if (page==='cropweave/index.html') footerHtml=footerHtml.replace('<nav aria-label="Site information">',
+      '<nav aria-label="Site information">\n    <a href="mailto:feedback@dailyden.games?subject=Daily%20Den%20sponsorship">Sponsor</a>')
     await writeFile(path, html
       .replace('</head>', '  <link rel="stylesheet" href="/assets/daily-den-footer.css">\n</head>')
       .replace(slot, footerHtml))
@@ -49,11 +65,12 @@ try {
   const gameHeaders = join(staging, 'unruled', '_headers')
   const headers = await readFile(gameHeaders, 'utf8')
   await writeFile(join(staging, '_headers'), headers.replace(/^\//gm, '/unruled/')
-    + `/${CROSSWIRED}/calendar.json\n  Cache-Control: no-cache\n`)
+    + `/${CROSSWIRED}/calendar.json\n  Cache-Control: no-cache\n`
+    + '/cropweave/calendar.json\n  Cache-Control: no-cache\n/cropweave/\n  X-Robots-Tag: noindex\n')
   await rm(gameHeaders)
   await rm(output, { recursive: true, force: true })
   await rename(staging, output)
-  console.log('Built Daily Den, Unruled, and SwitchLight in dist/.')
+  console.log('Built Daily Den, Unruled, SwitchLight, and CropWeave in dist/.')
 } finally {
   await rm(staging, { recursive: true, force: true })
 }
