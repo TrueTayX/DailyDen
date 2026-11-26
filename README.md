@@ -5,11 +5,12 @@ Daily Den is a home for daily puzzle games at [dailyden.games](https://dailyden.
 - `apps/home/` is the homepage.
 - `apps/unruled/` contains Unruled, previously called Rulebreaker, including its source, dated puzzle catalog, tests, and analytics migration.
 - `apps/crosswired/` contains SwitchLight, its generator, and the daily calendar.
+- `apps/cropweave/` contains CropWeave Beta, its dated archive, solver, and review tools.
 - Lineup.Day opens the existing site at [lineup.day](https://lineup.day/).
 
 ## Upload to Cloudflare Pages
 
-Upload the checked-in `dist/` folder from `main` using Cloudflare Pages Direct Upload. If uploading a zip, put `index.html`, `unruled/`, and `crosswired/` at the top level of the archive. The folder includes the homepage, both games, and their assets. Direct Upload uses the static build with analytics off.
+Upload the checked-in `dist/` folder from `main` using Cloudflare Pages Direct Upload. If uploading a zip, put `index.html`, `unruled/`, `crosswired/`, and `cropweave/` at the top level of the archive. The folder includes the homepage, three games, and their assets. Direct Upload uses the static build with analytics off.
 
 ## Run checks and build
 
@@ -20,7 +21,7 @@ npm test
 npm run build
 ```
 
-Serve `dist/` with a static HTTP server to try the homepage and both games. The routes are `/`, `/unruled/`, and `/crosswired/`. To work on Unruled by itself, run `npm --prefix apps/unruled run dev`.
+Serve `dist/` with a static HTTP server to try the homepage and all three games. The routes are `/`, `/unruled/`, `/crosswired/`, and `/cropweave/`. To work on Unruled by itself, run `npm --prefix apps/unruled run dev`.
 
 After updating an app, run `npm run build` and commit the resulting `dist/` changes. CI rebuilds the site and checks for differences.
 
@@ -39,6 +40,10 @@ SwitchLight uses midnight in `America/Los_Angeles` and has four puzzles per day.
 Run `npm run crosswired:review -- YYYY-MM-DD` and serve `reports/crosswired/` locally to play through the next 14 days and read the metrics. Review builds include unreleased puzzles. Use `node apps/crosswired/scripts/swap.mjs RESERVE_ID` to replace an unpublished puzzle with a compatible reserve. Run `npm run build && npm run crosswired:verify` after changes.
 
 The 33 starter families cannot supply at least two new families per day under a 21-day cooldown. The scheduler enforces ten intervening days for each stamp family and ten for each concrete goal board. All-off and all-on warm-ups cycle separately. Five advanced families become eligible at two-week intervals. The generator balances uses within tier and probe limits. Human playtesting and difficulty calibration are editorial steps.
+
+## CropWeave Beta
+
+See the [CropWeave release and review guide](apps/cropweave/README.md) for the daily calendar, reserve swaps, scoring versions, and optional telemetry.
 
 ## SwitchLight interface
 

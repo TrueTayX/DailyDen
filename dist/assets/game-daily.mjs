@@ -1,3 +1,9 @@
+export const PUZZLE_TIME_ZONE = 'America/Los_Angeles'
+
+export function getPuzzleDate(now = new Date(), timeZone = PUZZLE_TIME_ZONE) {
+  return dayKey(now, timeZone ?? undefined)
+}
+
 export function dayKey(date, timeZone) {
   const parts = new Intl.DateTimeFormat('en-CA', {
     timeZone, year: 'numeric', month: '2-digit', day: '2-digit',

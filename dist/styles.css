@@ -176,3 +176,6 @@ h1, h2, h3, p { margin: 0; }
   .game-grid { grid-template-columns: 1fr; }
   .games { margin-top: 2rem; }
 }
+
+.cropweave-art{display:flex;align-items:center;justify-content:center;gap:6px;background:#e2e6b9}
+.cropweave-art img{width:42px;height:42px;padding:3px;border:1px solid #7d815a;border-radius:8px;background:#f5e6b8;image-rendering:pixelated}

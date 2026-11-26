@@ -6,3 +6,7 @@
   Cache-Control: no-cache
 /crosswired/calendar.json
   Cache-Control: no-cache
+/cropweave/calendar.json
+  Cache-Control: no-cache
+/cropweave/
+  X-Robots-Tag: noindex

@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <meta name="description" content="CropWeave Beta is Daily Den’s daily farm puzzle. Arrange crops and helpers to grow your score.">
+  <meta name="theme-color" content="#f5efdc">
+  <meta property="og:title" content="CropWeave Beta · Daily Den">
+  <meta property="og:description" content="Arrange crops and helpers to grow your score.">
+  <meta property="og:image" content="https://dailyden.games/cropweave/art/share.png">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://dailyden.games/cropweave">
+  <link rel="canonical" href="https://dailyden.games/cropweave">
+  <link rel="stylesheet" href="./style.css">
+  <title>CropWeave Beta · Daily Den</title>
+  <script type="module" src="./play.mjs"></script>
+  <link rel="stylesheet" href="/assets/daily-den-footer.css">
+</head>
+<body>
+  <header class="masthead"><div class="bar">
+    <div class="name"><h1>CropWeave</h1><span class="beta">Beta</span></div>
+    <div class="toolbar">
+      <button type="button" id="help-button" aria-label="How to play">?</button>
+      <button type="button" id="settings-button" aria-label="Settings">⚙</button>
+    </div>
+  </div></header>
+  <main>
+    <p id="availability" class="waiting" role="status">Loading today’s plot…</p>
+    <section id="farm" class="farm" aria-label="Daily farm puzzle" hidden>
+      <div class="plot-area">
+        <div class="rule"><span class="rule-art" aria-hidden="true">✦</span>
+          <div><strong id="rule-name"></strong><p id="rule-text"></p></div>
+          <div class="day"><strong id="puzzle-id"></strong><small id="date"></small></div>
+        </div>
+        <div id="board" class="board" role="group" aria-label="Farm plot"></div>
+        <div class="tray-header"><strong>Tile hand</strong><span id="placed"></span></div>
+        <div id="tray" class="tray" role="group" aria-label="Tile hand"></div>
+        <div class="tip" id="tip">
+          <div class="diagram" id="diagram" aria-hidden="true"></div>
+          <div class="tip-copy"><strong id="tip-name"></strong><p id="tip-text"></p></div>
+          <button id="pickup" type="button" hidden>Pick up</button>
+        </div>
+      </div>
+      <aside class="side" aria-label="Farm score and controls">
+        <div class="scorecard">
+          <div class="score-row">
+            <div class="total"><span aria-hidden="true">✦</span><strong id="coins">0</strong><span>coins</span></div>
+            <div><span id="stars" class="stars"></span><p id="target"></p></div>
+            <button type="button" id="scores-button" aria-label="Scoring breakdown">Breakdown</button>
+          </div>
+          <div id="desktop-scores" class="score-categories"></div>
+        </div>
+        <div class="controls">
+          <button id="undo" type="button" disabled>Undo</button>
+          <button id="finish" class="primary" type="button" disabled>Finish farm</button>
+          <button id="results" class="primary" type="button" hidden>View result</button>
+          <button id="return" type="button" hidden>Back to daily result</button>
+        </div>
+        <p id="message" role="status"></p>
+        <p class="beta-note">CropWeave is in beta. Your feedback helps us tune future puzzles.</p>
+      </aside>
+    </section>
+  </main>
+
+  <dialog id="help" aria-labelledby="help-title">
+    <header><h2 id="help-title">How to play</h2><form method="dialog"><button>Close</button></form></header>
+    <p>Choose a tile, then an empty square. Arrange every tile and finish your farm to lock in the score. You can rearrange and undo before finishing.</p>
+    <p>Neighbors share a side. Some tiles also score diagonally or along a line. Inspect a placed tile to see every bonus. A Well, Pond, or river irrigates a crop once, and pollination and protection also count once per crop.</p>
+    <p>Use arrow keys to move around the plot and Enter to place or inspect. When Hold to preview is enabled, press P on a legal square for a preview.</p>
+    <button id="tour-again" type="button">Show the tour</button>
+    <ul id="roster" class="roster"></ul>
+  </dialog>
+  <dialog id="settings" aria-labelledby="settings-title">
+    <header><h2 id="settings-title">Settings</h2><form method="dialog"><button>Close</button></form></header>
+    <label><input type="checkbox" id="contrast"> High contrast</label>
+    <label><input type="checkbox" id="motion"> Reduce motion</label>
+    <label><input type="checkbox" id="preview-enabled"> Show hold-to-preview</label>
+    <button id="reset-tips" type="button">Show tips again</button>
+    <button id="stats-button" type="button">View stats</button>
+  </dialog>
+  <dialog id="tutorial" aria-labelledby="tour-title">
+    <header><h2 id="tour-title"></h2><form method="dialog"><button>Skip</button></form></header>
+    <p id="tour-text"></p>
+    <div class="dialog-actions"><button id="tour-back" type="button">Back</button><button id="tour-next" type="button" class="primary">Next</button></div>
+  </dialog>
+  <dialog id="score-detail" aria-labelledby="score-title">
+    <header><h2 id="score-title">Scoring breakdown</h2><form method="dialog"><button>Close</button></form></header>
+    <div id="mobile-scores" class="score-categories"></div>
+  </dialog>
+  <dialog id="outcome" aria-labelledby="result-title">
+    <header><h2 id="result-title">Harvest result</h2><form method="dialog"><button>Close</button></form></header>
+    <p id="result-score" class="result-score"></p><p id="result-meta"></p>
+    <div class="dialog-actions"><button id="share" class="primary" type="button">Copy result</button>
+      <button id="practice" type="button">Practice this puzzle</button>
+      <button id="reveal" type="button">See the best-known farm</button></div>
+    <p id="copied" role="status"></p><textarea id="share-fallback" aria-label="Share text" readonly hidden></textarea>
+    <nav class="result-links"><a href="/crosswired/">Play SwitchLight</a><a href="https://lineup.day/">Play Lineup</a><a href="/">Daily Den</a><a id="feedback">Give beta feedback</a></nav>
+  </dialog>
+  <dialog id="solution" aria-labelledby="solution-title">
+    <header><h2 id="solution-title">Best-known farm</h2><form method="dialog"><button>Close</button></form></header>
+    <p>This layout spoils the puzzle for others.</p>
+    <button id="show-solution" type="button">Reveal layout</button>
+    <div id="solution-board" class="board solution-board" role="group" aria-label="Best-known layout" hidden></div>
+  </dialog>
+  <dialog id="stats" aria-labelledby="stats-title">
+    <header><h2 id="stats-title">Your CropWeave stats</h2><form method="dialog"><button>Close</button></form></header>
+    <dl id="stats-body"></dl>
+  </dialog>
+  <footer class="site-footer">
+    <nav aria-label="Site information">
+    <a href="mailto:feedback@dailyden.games?subject=Daily%20Den%20sponsorship">Sponsor</a>
+      <a href="mailto:feedback@dailyden.games?subject=CropWeave%20Beta%20feedback">Contact</a>
+      <a href="/privacy.html">Privacy</a>
+    </nav>
+    <small>© 2026 Daily Den</small>
+  </footer>
+</body>
+</html>

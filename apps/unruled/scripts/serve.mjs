@@ -17,9 +17,11 @@ const mime = {
 const server = createServer(async (request, response) => {
   try {
     const pathname = decodeURIComponent(new URL(request.url, 'http://localhost').pathname)
-    const path = resolve(root, '.' + (pathname === '/' ? '/index.html' : pathname))
+    const shared = pathname === '/packages/game/daily.mjs'
+    const path = shared ? resolve(root, '../../../packages/game/daily.mjs') :
+      resolve(root, '.' + (pathname === '/' ? '/index.html' : pathname))
     const type = mime[extname(path)]
-    if (!path.startsWith(root.endsWith(sep) ? root : root + sep) || !type) throw new Error('Unknown path')
+    if ((!shared && !path.startsWith(root.endsWith(sep) ? root : root + sep)) || !type) throw new Error('Unknown path')
     const data = await readFile(path)
     response.writeHead(200, { 'Content-Type': type, 'Cache-Control': 'no-store' })
     response.end(request.method === 'HEAD' ? undefined : data)

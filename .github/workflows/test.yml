@@ -17,6 +17,9 @@ jobs:
       - run: npm run crosswired:verify
         env:
           CROSSWIRED_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+      - run: npm run cropweave:verify
+        env:
+          CROPWEAVE_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
       - name: Check that dist matches the source
         run: |
           changes="$(git status --short --untracked-files=all -- dist/)"

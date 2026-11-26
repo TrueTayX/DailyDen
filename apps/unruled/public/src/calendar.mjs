@@ -1,7 +1,9 @@
+import { getPuzzleDate } from '../../../../packages/game/daily.mjs'
+
 const dayInMs = 86_400_000
 
 export function localDay(date = new Date()) {
-  return [date.getFullYear(), String(date.getMonth() + 1).padStart(2, '0'), String(date.getDate()).padStart(2, '0')].join('-')
+  return getPuzzleDate(date, null)
 }
 
 export function dayIndex(day) {

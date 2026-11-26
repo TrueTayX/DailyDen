@@ -7,8 +7,10 @@
   },
   "scripts": {
     "build": "node scripts/build.mjs",
-    "test": "npm --prefix apps/unruled test && node --test apps/crosswired/tests/*.test.mjs",
+    "test": "npm --prefix apps/unruled test && node --test apps/crosswired/tests/*.test.mjs && node --test apps/cropweave/tests/*.test.mjs",
     "crosswired:review": "node apps/crosswired/scripts/review.mjs",
-    "crosswired:verify": "node apps/crosswired/scripts/verify.mjs"
+    "crosswired:verify": "node apps/crosswired/scripts/verify.mjs",
+    "cropweave:review": "node apps/cropweave/scripts/review.mjs",
+    "cropweave:verify": "node apps/cropweave/scripts/verify.mjs"
   }
 }
