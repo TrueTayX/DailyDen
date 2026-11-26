@@ -1,5 +1,7 @@
-# CropWeave assets
+# CropWeave artwork
 
-The 15 PNG tile sprites and the Open Graph image in `public/art/` are original CropWeave Beta artwork. The checked-in `scripts/art.py` draws them from geometric shapes. The game renders the sprites through the lookup in `public/config.mjs`. The social image uses DejaVu Sans Bold under the [DejaVu Fonts license](https://dejavu-fonts.github.io/License.html).
+The countryside panorama, meadow illustration and farm-piece atlas were generated specifically for CropWeave using original text art direction and OpenAI image generation. No reference images from other games or websites were supplied. The atlas contains all 15 playable pieces and the rock obstacle. The game uses individually cropped, transparent PNGs so each piece scales independently in the hand, plot, tour, and field guide.
 
-System fonts and symbols supplied by the player's device are used in the interface. There are no third-party image files or audio. Tiny Fox Art Co. can replace the sprites in the final art pass.
+The pasture, field furrows, and water ripples are original procedurally drawn textures. The social preview combines the countryside illustration with DejaVu Serif and Sans. Interface text uses device fonts. [DejaVu font license](https://dejavu-fonts.github.io/License.html)
+
+The optimized assets live in `public/art/`. Tile IDs map to pictures in `public/config.mjs`.

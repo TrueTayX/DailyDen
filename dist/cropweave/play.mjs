@@ -131,7 +131,12 @@ function drawCell(node,board,i,scoreData,earlier=null,interactive=true) {
     node.removeAttribute('aria-description')
     if (type===WATER||type===ROCK) {
       node.classList.add(type===WATER?'river':'rock')
-      node.append(mark(type===WATER?'≈':'◆','terrain'))
+      if (type===ROCK) {
+        const rock=element('img')
+        rock.src='./art/rock.png'
+        rock.alt=''
+        node.append(rock)
+      }
     }
   }
   if (!interactive) {node.setAttribute('role','img');return}
@@ -188,11 +193,19 @@ function createUI() {
     $('tray').append(button)
     trayButtons.push({button,count,type})
   }
+  for (const threshold of puzzle.stars) {
+    const tick=element('i')
+    tick.style.left=(threshold/puzzle.bestKnown.score*100)+'%'
+    $('milestones').append(tick)
+  }
   for (const id of ['desktop-scores','mobile-scores']) {
     for (const [i,c] of categories.entries()) {
       const button=element('button'), coins=element('strong','0')
       button.type='button'
-      button.append(element('span',c.icon+' '+c.name),coins)
+      const label=element('span',c.name)
+      const symbol=element('span',['●','▦','✿','⬡','≈','✥','⌂','◇'][i],'category-symbol')
+      symbol.setAttribute('aria-hidden','true')
+      button.append(symbol,label,coins)
       button.addEventListener('click',()=>setCategory(i))
       $(id).append(button)
       scoreButtons.push({button,coins,i})
@@ -212,6 +225,7 @@ function render(earlier=null) {
   const was=$('coins').textContent
   $('coins').textContent=details.coins
   if (was!==String(details.coins)) $('coins').setAttribute('aria-label',details.coins+' coins')
+  $('harvest-fill').style.width=Math.min(100,details.coins/puzzle.bestKnown.score*100)+'%'
   const result=rating(puzzle,details.coins)
   $('stars').textContent=starText(result.stars)
   $('stars').setAttribute('aria-label',result.stars+' of 3 stars')
@@ -460,6 +474,8 @@ const slides=[
 let slide=0
 function drawSlide() {
   const [title,text]=slides[slide]
+  $('tour-step').textContent='Field guide · '+(slide+1)+' of '+slides.length
+  $('tour-piece').src=sprite[['wheat','sunflower','barn','scarecrow','well'][slide]]
   $('tour-title').textContent=title
   $('tour-text').textContent=text
   $('tour-back').disabled=slide===0
@@ -491,6 +507,8 @@ async function load() {
   roving=plot.open[0]
   events=telemetry(store,puzzle,document.querySelector('meta[name="cropweave-analytics"]')?.content)
   const rule=plot.config.cards[puzzle.ruleCard]
+  const ruleArt={'dry-season':'well','bee-festival':'beehive','crow-day':'scarecrow','market-day':'barn','orchard-season':'pear-tree','free-range':'chicken-coop','windy-day':'windmill','cozy-corners':'sunflower'}
+  $('rule-art').src=sprite[ruleArt[puzzle.ruleCard]??'wheat']
   $('rule-name').textContent=rule.name
   $('rule-text').textContent=rule.text
   $('puzzle-id').textContent='#'+puzzle.day

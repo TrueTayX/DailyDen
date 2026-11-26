@@ -130,3 +130,197 @@ dd{margin:0;font-weight:750}
   #desktop-scores{display:none}
   #scores-button{display:block;font-size:.75rem}
 }
+
+/* The paper, terrain and illustrated pieces share one warm daylight palette. */
+:root {
+  --paper:#f5f1e6; --panel:#fffdf5; --text:#233a32; --muted:#58695e;
+  --forest:#254e40; --line:#d3cbb7; --accent:#944629; --gold:#ffda82;
+  font-family:"Avenir Next", Avenir, "Trebuchet MS", system-ui, sans-serif;
+  background:radial-gradient(ellipse at 50% 0%,#fffcf2 0,transparent 65%),var(--paper);
+}
+button {border-radius:9px; transition:border-color .12s,background-color .12s}
+button:focus-visible,a:focus-visible {outline:3px solid #94421e;outline-offset:2px;z-index:4}
+.masthead {background:none;border:0;max-width:1116px;margin:auto;padding:0 24px}
+.bar {max-width:none;min-height:48px;padding:0 2px}
+.home {font-size:.86rem;font-weight:800;text-decoration:none;display:inline-flex;align-items:center;min-height:44px}
+.toolbar {gap:4px}
+.toolbar button {border:0;background:transparent;border-radius:50%;font:700 1.2rem/1 Georgia,serif}
+.hero {position:relative;isolation:isolate;overflow:hidden;border:1px solid #c8bfa5;border-radius:16px;background:#e9dcc1 url('./art/countryside.webp') center 56%/cover;height:clamp(124px,16vh,178px);box-shadow:0 2px 4px #3c391813}
+.hero::before {content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,#fff5dbe8 1%,#fff4d4b8 28%,transparent 62%)}
+.hero-copy {position:absolute;left:clamp(22px,4vw,60px);top:50%;transform:translateY(-50%)}
+.hero-copy>p,.rule small,#tour-step {font-size:.69rem;text-transform:uppercase;font-weight:800;letter-spacing:.16em}
+.name {align-items:center;gap:12px}
+h1 {font:700 clamp(2.9rem,5.6vw,5.2rem)/1 Georgia,serif;letter-spacing:-.065em;color:#203e31;text-shadow:0 1px #fff5d3}
+.beta,.new {background:#f6d895;color:#67491f;border:1px solid #b99d63;border-radius:20px;padding:3px 8px}
+.beta {font-size:.68rem;text-transform:uppercase;letter-spacing:.08em}
+main {max-width:1040px;padding:20px 24px 24px}
+.farm {grid-template-columns:minmax(0,1.6fr) minmax(272px,1fr);gap:22px}
+h2 {font:700 clamp(1.15rem,2vw,1.45rem)/1.1 Georgia,serif;letter-spacing:-.025em}
+.plot-area,.scorecard,.rule {border:1px solid var(--line);background:var(--panel);border-radius:15px;box-shadow:0 3px 2px #5e4f2710,0 9px 24px #5e4f2709}
+.plot-area {padding:14px 18px}
+.plot-heading,.tray-header {display:flex;align-items:center;justify-content:space-between;gap:8px}
+.plot-heading {margin-bottom:10px}
+.day,#placed {font-size:.76rem;font-weight:650;color:var(--muted)}
+.day {display:flex;align-items:center;gap:7px}
+.day b {background:#efeada;border-radius:20px;padding:3px 8px}
+.board {--gap:3px;width:min(100%,calc(var(--size) * clamp(48px,7.4vh,74px) + (var(--size) - 1)*var(--gap) + 28px));padding:12px;gap:var(--gap);border:2px solid #715b38;border-radius:13px;background:#889c68 url('./art/meadow.webp') center/cover;box-shadow:0 2px 0 #6c5638,0 4px 8px #47380a2b,inset 0 0 0 2px #ece1ad,inset 0 0 18px #566e41}
+.cell,.cell:nth-child(even) {border:1px solid #8c9a62;border-radius:6px;background:#cbd395 url('./art/field.webp') center/100% 100%;box-shadow:inset 0 1px 1px #fff3bf90,0 1px 1px #5b663380}
+.cell:nth-child(3n) {background-position:5px 7px}
+.cell:nth-child(4n+1) {background-size:110%}
+.cell:enabled:hover {background:#e5e4ac url('./art/field.webp') center/cover;outline:2px solid #4f6947;outline-offset:-2px}
+.cell.occupied,.cell.fixed {background:radial-gradient(ellipse at 50% 77%,#cbd082 0, #ece6bb 70%);border-color:#a49d69}
+.cell.rock,.cell.rock:hover {background:#aab87e url('./art/pasture.webp') center/cover;border-color:#839261}
+.cell.river,.cell.river:hover {background:#80b3af url('./art/water.webp') center/cover;border-color:#558c91}
+.cell.ineligible {background:#d2c9ad}
+.cell.legal-edge {border:2px dashed var(--forest)}
+.cell img {width:91%;height:91%;image-rendering:auto;filter:drop-shadow(0 1px 1px #433b2e38)}
+.cell img,.tile img {user-select:none}
+.cell .tile-value,.cell .fixed-mark {padding:2px 4px;background:#294c35;color:#fffbea;border:1px solid #f2edca;border-radius:10px}
+.cell.fixed {border:2px dashed #735a35}
+.cell.inspected,.cell.highlight {box-shadow:inset 0 0 0 3px var(--accent)}
+.tray-header {margin:14px 0 5px}
+.tray-header h2 {font-size:1.15rem;color:var(--text)}
+.tray {gap:5px;padding:2px 2px 5px}
+.tile {flex:1 0 58px;max-width:84px;height:75px;padding:3px 1px;background:linear-gradient(#fffcf1,#f3ebd5);border:1px solid #c7baa0;box-shadow:0 2px #d3c6a6;border-radius:9px}
+.tile img {width:46px;height:46px;image-rendering:auto;object-fit:contain}
+.tile small {font-weight:750;font-size:.67rem}
+.tile .count {top:3px;right:3px;background:#fcf9ed;color:#344e3e;border:1px solid #b9b39d;border-radius:50%;padding:1px 3px;min-width:16px;line-height:1.1}
+.tile .new {top:0;left:0}
+.tile[aria-pressed=true] {border-color:#3e6345;background:#e4ebcd;box-shadow:inset 0 0 0 1px #3e6345,0 2px #4e6d4a}
+.tile[aria-disabled=true] {opacity:.58}
+.tip {margin-top:7px;min-height:54px;padding:6px 10px;background:#f4f1e5;border:1px solid #ded8c7;border-radius:9px}
+.side {display:grid;gap:12px}
+.rule {margin:0;gap:12px;padding:12px 16px;background:#fff7de;border-color:#d9c59b}
+.rule img {object-fit:contain;flex:none}
+.rule small {display:block;font-size:.6rem;color:#765829}
+.rule strong {font:700 1.25rem Georgia,serif}
+.rule p {margin-top:2px}
+.scorecard {padding:0;overflow:hidden;color:var(--text)}
+.scorecard>h2,.score-row {background:#254e40;color:#fff9e7}
+.scorecard>h2 {padding:16px 16px 0}
+.score-row {min-height:70px;justify-content:space-between;padding:6px 16px 12px;gap:9px}
+.total {align-items:center;gap:6px}
+.total strong {font-size:2.8rem;font-variant-numeric:tabular-nums}
+.total>span:last-child {font-size:.83rem}
+.total .coin {width:24px;height:24px;display:grid;place-items:center;border-radius:50%;color:#835421;background:#f1c35f;border:2px solid #ffe699;box-shadow:inset 0 0 0 1px #af7d2d}
+.stars {letter-spacing:.13em}
+.score-categories {gap:0;margin:0;padding:4px 15px}
+.score-categories button {display:grid;grid-template-columns:24px 1fr auto;gap:6px;justify-content:stretch;background:transparent;color:var(--text);border:0;border-bottom:1px solid #e2ddce;border-radius:0;font-size:.86rem;min-height:44px;padding:4px 0;font-weight:600}
+.score-categories button:last-child {border:0}
+.score-categories button:enabled:hover,.score-categories button[aria-pressed=true] {background:#e6ecd6}
+.category-symbol {display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#f1ead3;color:#79632d}
+.score-categories button:nth-child(3n+2) .category-symbol {background:#e7ecd9;color:#57744a}
+.score-categories button:nth-child(3n) .category-symbol {background:#e1ebec;color:#476d77}
+.controls {margin:0}
+.controls .primary {flex:1}
+.primary:disabled {background:#e4dac4;color:#665f50;border-color:#c8bba3}
+#message:empty {display:none}
+.beta-note,#message {margin:0;font-size:.76rem}
+dialog {border-radius:16px;padding:20px;box-shadow:0 15px 75px #102e2855}
+dialog::backdrop {background:#152c25a6;backdrop-filter:blur(3px)}
+#tutorial {max-width:410px}
+.tour-scene {height:105px;background:#efe6ce url('./art/countryside.webp') center 64%/cover;border-radius:9px;display:flex;align-items:flex-end;padding:5px 16px;margin-bottom:12px}
+.tour-scene img {width:78px;height:78px;object-fit:contain;background:#fff9e6;border:2px solid #fffcf3;border-radius:12px;box-shadow:0 2px 5px #3336}
+.roster img {image-rendering:auto;object-fit:contain;width:44px;height:44px}
+#outcome {border-top:8px solid var(--forest)}
+@media(max-width:760px) and (orientation:portrait) {
+  .masthead {position:relative;padding:0}
+  .bar {position:absolute;inset:0 6px auto;z-index:1;min-height:44px}
+  .home,.toolbar button {color:#233b30}
+  .toolbar {gap:0}
+  .toolbar button {background:#fff8e8de;width:44px;border:1px solid #cfcbad;margin-left:2px}
+  .hero {height:122px;border-radius:0 0 13px 13px;border-width:0 0 1px;background-position:65% center}
+  .hero-copy {left:17px;top:auto;bottom:9px;transform:none}
+  .hero-copy>p {font-size:.58rem}
+  h1 {font-size:2.7rem}
+  main {padding:7px 7px 15px;min-height:0}
+  .farm {display:grid;grid-template-columns:minmax(0,1fr);gap:6px}
+  .side,.plot-area {display:contents}
+  .rule {order:0;padding:4px 9px;gap:8px;border-radius:9px;min-height:40px}
+  .rule img {width:32px;height:32px}
+  .rule small {display:inline;margin-right:6px;font-size:.54rem}
+  .rule strong {font-size:1rem}
+  .rule p {margin:0;font-size:.74rem}
+  .plot-heading {order:1;margin:0 3px}
+  .plot-heading h2,.tray-header h2 {font-size:1.05rem}
+  .board {order:2;--gap:2px;padding:4px;width:min(100%,calc(var(--size) * clamp(44px,6.4vh,63px) + (var(--size) - 1)*var(--gap) + 12px))}
+  .tray-header {order:3;margin:1px 3px -3px}
+  .tray {order:4;gap:4px;padding:1px 2px 4px}
+  .tile {flex:1 0 48px;max-width:76px;height:59px}
+  .tile img {width:35px;height:35px}
+  .tile small {font-size:.62rem}
+  .tip {order:5;margin:0;padding:4px 7px;min-height:44px}
+  .scorecard {order:6;border:0;border-radius:10px}
+  .scorecard>h2,#desktop-scores {display:none}
+  .score-row {min-height:44px;padding:0 6px;justify-content:flex-start}
+  .total strong {font-size:1.7rem}
+  #scores-button {display:block;margin-left:auto;font-size:.72rem}
+  .controls {order:7}
+  #message {order:8}
+  .beta-note {order:9}
+}
+@media(max-width:760px) and (orientation:portrait) and (max-height:715px) {
+  .hero {height:64px}
+  .hero-copy {left:12px;bottom:6px}
+  .hero-copy>p {font-size:.52rem}
+  h1 {font-size:2.2rem}
+  .bar {inset:7px 5px auto auto}
+  .home {display:none}
+  main {padding:4px 6px 12px}
+  .farm {gap:3px}
+  .tile {height:48px}
+  .tile img {width:29px;height:29px}
+  .tip {min-height:42px}
+  .rule {min-height:36px}
+}
+@media(max-height:520px) and (orientation:landscape) {
+  .masthead {display:flex;flex-direction:row-reverse;align-items:center;padding:0 8px;gap:6px;background:#eee8d4}
+  .bar {margin:0;gap:8px}
+  .hero {flex:1;height:62px;border-radius:7px}
+  .hero-copy {left:12px}
+  .hero-copy>p {font-size:.54rem}
+  h1 {font-size:2.1rem}
+  main {padding:6px 8px}
+  .farm {grid-template-columns:minmax(326px,1fr) minmax(180px,.7fr);gap:7px}
+  .plot-area {padding:5px}
+  .board {width:min(100%,calc(var(--size)*44px + (var(--size) - 1)*2px + 12px));--gap:2px;padding:4px}
+  .score-row {flex-wrap:wrap;padding:6px;min-height:44px}
+  .side {gap:6px}
+  .side .rule {padding:6px}
+  .total strong {font-size:1.6rem}
+  .scorecard>h2 {padding:6px}
+  #scores-button {display:block}
+  #desktop-scores {display:none}
+}
+.contrast .hero::before {background:linear-gradient(90deg,#fff 25%,transparent)}
+.contrast .board {background:#254031;border-color:#111}
+.contrast .cell {border-color:#142c1c;background:#eef1cc}
+.contrast .cell.occupied {background:#fff1be}
+.contrast .cell.river {background:#83bacf url('./art/water.webp') center/cover}
+.contrast .cell.inspected,.contrast .cell.highlight {box-shadow:inset 0 0 0 3px #76290e}
+.reduced * {transition:none}
+
+.toolbar button {display:grid;place-items:center}
+.help-glyph {width:20px;height:20px;border-radius:100%;border:1.7px solid currentColor;font:700 15px/17px Georgia,serif}
+.settings-glyph {position:relative;width:19px;height:12px;border-block:2px solid currentColor}
+.settings-glyph::before,.settings-glyph::after {content:"";position:absolute;width:5px;height:5px;border:1.5px solid currentColor;border-radius:50%;background:#f7f3e7}
+.settings-glyph::before {left:2px;top:-5px}
+.settings-glyph::after {right:2px;bottom:-5px}
+.harvest-track {position:relative;height:6px;margin:0;background:#486751}
+#harvest-fill {display:block;height:100%;background:#e9c56b;transition:width .2s ease}
+#milestones i {position:absolute;top:0;bottom:0;width:2px;background:#eae2b7}
+@media(min-width:761px) {
+  .hero {background-position:center 41%}
+  .scorecard>h2 {position:relative;isolation:isolate}
+  .scorecard>h2::after {content:"";position:absolute;pointer-events:none;z-index:-1;top:2px;right:18px;width:50px;height:50px;opacity:.22;background:url('./art/wheat.png') center/contain no-repeat;filter:sepia(1)}
+}
+@media(max-width:760px) and (orientation:portrait) {
+  .harvest-track {height:3px}
+}
+
+@media(max-width:340px) and (orientation:portrait) {
+  main {padding-inline:2px}
+  .board {--gap:0px;padding:2px;border-width:1px}
+}
+@media(prefers-reduced-motion:reduce) {* {transition:none}}
+.reduced #harvest-fill {transition:none}
