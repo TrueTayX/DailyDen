@@ -60,13 +60,14 @@ main{max-width:1040px;margin:auto;padding:19px 20px;min-height:min(640px,75dvh)}
 .diagram span{background:#efe8d1;border:1px solid #8b8b73;border-radius:2px;height:11px;display:grid;place-items:center;font-size:8px;color:#fff}
 .diagram .affects{background:#587c56;border-color:#3e5d3e}
 .diagram .center{background:var(--forest)}
+.diagram .center::after{content:"";width:3px;height:3px;background:white;border-radius:50%}
 .side{min-width:0}
 .scorecard{background:var(--forest);border:1px solid var(--forest);color:#fffbea;border-radius:13px;padding:10px 13px}
 .score-row{display:flex;align-items:center;gap:12px}
 .total{display:flex;align-items:baseline;gap:5px;white-space:nowrap}
 .total strong{font:700 2.2rem/1 Georgia,serif}
 .total>span:first-child,.stars{color:var(--gold)}
-.stars{font-size:1.05rem;white-space:nowrap}
+.stars{font-size:1.22rem;white-space:nowrap}
 #target{font-size:.76rem}
 .score-categories{display:grid;gap:4px;margin-top:9px}
 .score-categories button{display:flex;align-items:center;justify-content:space-between;font-size:.85rem;text-align:left}
@@ -302,10 +303,6 @@ dialog::backdrop {background:#152c25a6;backdrop-filter:blur(3px)}
 
 .toolbar button {display:grid;place-items:center}
 .help-glyph {width:20px;height:20px;border-radius:100%;border:1.7px solid currentColor;font:700 15px/17px Georgia,serif}
-.settings-glyph {position:relative;width:19px;height:12px;border-block:2px solid currentColor}
-.settings-glyph::before,.settings-glyph::after {content:"";position:absolute;width:5px;height:5px;border:1.5px solid currentColor;border-radius:50%;background:#f7f3e7}
-.settings-glyph::before {left:2px;top:-5px}
-.settings-glyph::after {right:2px;bottom:-5px}
 .harvest-track {position:relative;height:6px;margin:0;background:#486751}
 #harvest-fill {display:block;height:100%;background:#e9c56b;transition:width .2s ease}
 #milestones i {position:absolute;top:0;bottom:0;width:2px;background:#eae2b7}

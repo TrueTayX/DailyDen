@@ -82,12 +82,12 @@ function diagram(type) {
   const positions=relation==='area'||relation==='variety'&&plot.config.tiles[type].id==='market-stall'?[...side,...diagonal]:
     relation==='diagonal'?diagonal:relation==='line'&&plot.config.tiles[type]?.id==='corn'?[3,5]:
     ['line','variety','adjacent'].includes(relation)?side:[]
-  $('diagram').replaceChildren(...Array.from({length:9},(_,i)=>element('span',i===4?'•':'',i===4?'center':positions.includes(i)?'affects':'')))
+  $('diagram').replaceChildren(...Array.from({length:9},(_,i)=>element('span','',i===4?'center':positions.includes(i)?'affects':'')))
 }
 function updateTip() {
-  const type=hovered??focusType??(inspected===null?null:run.board[inspected])??selected??recent
+  const type=inspected===null ? hovered??focusType??selected??recent : run.board[inspected]
   const visible=Number.isInteger(type)&&type>=0
-  const cell=inspected!==null && type===run.board[inspected] ? details.tiles[inspected] : null
+  const cell=inspected===null ? null : details.tiles[inspected]
   $('tip-name').textContent=visible?plot.config.tiles[type].name+(cell?' · '+cell.total+' coins':''):'Piece scoring'
   $('tip-text').textContent=cell ? (cell.parts.flatMap((n,i)=>n?[n+' '+categories[i].name.toLowerCase()]:[]).join(' · ')||'No coins from this position.') :
     visible ? tipFor(type) : 'Choose a tile to see how it scores.'
@@ -141,7 +141,9 @@ function drawCell(node,board,i,scoreData,earlier=null,interactive=true) {
   }
   if (!interactive) {node.setAttribute('role','img');return}
   node.classList.toggle('inspected',inspected===i)
-  node.classList.toggle('highlight',category!==null&&Boolean(data?.parts[category]))
+  const feedsHive=category===2 && plot.config.tiles[type]?.group==='flower' &&
+    plot.neighbors[i].side.some(j=>board[j]===plot.byId.beehive)
+  node.classList.toggle('highlight',category!==null && (Boolean(data?.parts[category]) || feedsHive))
   if (selected!==null&&plot.config.tiles[selected].id==='pond'&&type===EMPTY&&!run.result) {
     node.classList.add(legal(plot,i,selected)?'legal-edge':'ineligible')
   }
