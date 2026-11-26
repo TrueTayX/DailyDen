@@ -8,16 +8,21 @@ export const BETA = true
 const tile = (id, name, group, relation, limit, unlock, base, tip) =>
   ({ id, name, group, relation, limit, unlock, base, tip })
 
+function flowerTip(values, id) {
+  const bonus = id==='lavender' ? ` This Lavender also earns +${values.lavenderHive} per neighboring Beehive.` : ''
+  return `${values[id]} base. Each neighboring Beehive earns +${values.hive}.${bonus}`
+}
+
 const tiles = [
   tile('wheat','Wheat','crop','adjacent',5,1,1,v=>`${v.wheat} base + ${v.wheatNeighbor} per neighboring Wheat.`),
   tile('carrot','Carrot','crop',null,4,1,2,v=>`${v.carrot} base coins.`),
-  tile('sunflower','Sunflower','flower',null,3,1,1,v=>`${v.sunflower} base, and adjacent Beehives gain ${v.hive}.`),
+  tile('sunflower','Sunflower','flower','adjacent',3,1,1,v=>flowerTip(v,'sunflower')),
   tile('beehive','Beehive','animal','adjacent',2,1,0,v=>`${v.hive} per adjacent flower, and adjacent crops gain ${v.pollination}.`),
   tile('well','Well','helper','adjacent',3,1,0,v=>`Adjacent crops gain ${v.water} through irrigation.`),
   tile('scarecrow','Scarecrow','helper','area',3,1,0,v=>`Crops in the surrounding eight squares gain ${v.protection}.`),
   tile('barn','Barn','helper','line',2,1,0,v=>`${v.barn} per crop in its row and column, at any distance.`),
   tile('cabbage','Cabbage','crop','variety',3,1,1,v=>`${v.cabbage} base + ${v.cabbageVariety} per different neighboring crop type.`),
-  tile('lavender','Lavender','flower','adjacent',3,1,1,v=>`${v.lavender} base + ${v.lavenderHive} per adjacent Beehive.`),
+  tile('lavender','Lavender','flower','adjacent',3,1,1,v=>flowerTip(v,'lavender')),
   tile('chicken-coop','Chicken Coop','animal','variety',2,11,1,v=>`${v.coopVariety} coins beside two different crop types, otherwise ${v['chicken-coop']}.`),
   tile('pear-tree','Pear Tree','crop',null,4,21,3,v=>`${v['pear-tree']} base coins.`),
   tile('corn','Corn','crop','line',4,31,1,v=>`${v.corn} per Corn in its row, including itself.`),
