@@ -55,7 +55,7 @@ try {
     if (!slot.test(html)) throw new Error(`Missing site footer slot in ${page}`)
     let footerHtml = footer.replace('__FEEDBACK_SUBJECT__', encodeURIComponent(subject))
     if (page==='cropweave/index.html') footerHtml=footerHtml.replace('<nav aria-label="Site information">',
-      '<nav aria-label="Site information">\n    <a href="mailto:feedback@dailyden.games?subject=Daily%20Den%20sponsorship">Sponsor</a>')
+      '<nav aria-label="Site information">\n    <a href="mailto:sponsor@dailyden.games?subject=Daily%20Den%20sponsorship">Sponsor</a>')
     await writeFile(path, html
       .replace('</head>', '  <link rel="stylesheet" href="/assets/daily-den-footer.css">\n</head>')
       .replace(slot, footerHtml))
