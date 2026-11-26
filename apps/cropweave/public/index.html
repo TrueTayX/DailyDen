@@ -18,22 +18,22 @@
 </head>
 <body>
   <header class="masthead"><div class="bar">
-    <div class="name"><h1>CropWeave</h1><span class="beta">Beta</span></div>
+    <a class="home" href="/">‹ &nbsp; Daily Den</a>
+
     <div class="toolbar">
-      <button type="button" id="help-button" aria-label="How to play">?</button>
-      <button type="button" id="settings-button" aria-label="Settings">⚙</button>
+      <button type="button" id="help-button" aria-label="How to play"><span class="help-glyph" aria-hidden="true">?</span></button>
+      <button type="button" id="settings-button" aria-label="Settings"><span class="settings-glyph" aria-hidden="true"></span></button>
     </div>
-  </div></header>
+  </div>
+    <div class="hero"><div class="hero-copy"><p>The daily farm puzzle</p><div class="name"><h1>CropWeave</h1><span class="beta">Beta</span></div></div></div>
+  </header>
   <main>
     <p id="availability" class="waiting" role="status">Loading today’s plot…</p>
     <section id="farm" class="farm" aria-label="Daily farm puzzle" hidden>
       <div class="plot-area">
-        <div class="rule"><span class="rule-art" aria-hidden="true">✦</span>
-          <div><strong id="rule-name"></strong><p id="rule-text"></p></div>
-          <div class="day"><strong id="puzzle-id"></strong><small id="date"></small></div>
-        </div>
+        <div class="plot-heading"><h2>Today’s plot</h2><div class="day"><span id="date"></span><b id="puzzle-id"></b></div></div>
         <div id="board" class="board" role="group" aria-label="Farm plot"></div>
-        <div class="tray-header"><strong>Tile hand</strong><span id="placed"></span></div>
+        <div class="tray-header"><h2>Tile hand</h2><span id="placed"></span></div>
         <div id="tray" class="tray" role="group" aria-label="Tile hand"></div>
         <div class="tip" id="tip">
           <div class="diagram" id="diagram" aria-hidden="true"></div>
@@ -42,12 +42,14 @@
         </div>
       </div>
       <aside class="side" aria-label="Farm score and controls">
-        <div class="scorecard">
+        <div class="rule"><img id="rule-art" alt="" width="52" height="52"><div><small>Today’s rule</small><strong id="rule-name"></strong><p id="rule-text"></p></div></div>
+        <div class="scorecard"><h2>Your harvest</h2>
           <div class="score-row">
-            <div class="total"><span aria-hidden="true">✦</span><strong id="coins">0</strong><span>coins</span></div>
+            <div class="total"><span class="coin" aria-hidden="true">✦</span><strong id="coins">0</strong><span>coins</span></div>
             <div><span id="stars" class="stars"></span><p id="target"></p></div>
             <button type="button" id="scores-button" aria-label="Scoring breakdown">Breakdown</button>
           </div>
+          <div class="harvest-track" aria-hidden="true"><i id="harvest-fill"></i><span id="milestones"></span></div>
           <div id="desktop-scores" class="score-categories"></div>
         </div>
         <div class="controls">
@@ -79,6 +81,8 @@
     <button id="stats-button" type="button">View stats</button>
   </dialog>
   <dialog id="tutorial" aria-labelledby="tour-title">
+    <div class="tour-scene" aria-hidden="true"><img id="tour-piece" alt=""></div>
+    <small id="tour-step"></small>
     <header><h2 id="tour-title"></h2><form method="dialog"><button>Skip</button></form></header>
     <p id="tour-text"></p>
     <div class="dialog-actions"><button id="tour-back" type="button">Back</button><button id="tour-next" type="button" class="primary">Next</button></div>
