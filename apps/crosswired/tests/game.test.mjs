@@ -4,6 +4,7 @@ import test from 'node:test'
 import { bit, applyPresses, asBits, asMask, flipSets, stampMask } from '../public/engine.mjs'
 import { STAMPS } from '../public/stamps.mjs'
 import { applyMove, freshRound, rating, restoreRound, shareResult } from '../public/game.mjs'
+import { GAME_NAME } from '../public/config.mjs'
 import { lightShapes } from '../public/lights.mjs'
 import { generateCalendar } from '../scripts/calendar.mjs'
 import { solve } from '../public/solver.mjs'
@@ -69,8 +70,8 @@ test('repeated presses cancel, while hints and restart keep cumulative scoring',
   assert.equal(restart.restarts, 1)
   assert.equal(restart.presses, 4)
   assert.deepEqual(restoreRound(puzzle, restart), restart)
-  assert.match(shareResult('Crosswired', { number: 1, puzzles: [puzzle] }, [restart], 'https://dailyden.games/crosswired/'),
-    /^Crosswired #1\n🟨\nPresses 4 \(par 3\)\nhttps:\/\/dailyden.games\/crosswired\/$/)
+  assert.match(shareResult(GAME_NAME, { number: 1, puzzles: [puzzle] }, [restart], 'https://dailyden.games/crosswired/'),
+    /^SwitchLight #1\n🟨\nPresses 4 \(par 3\)\nhttps:\/\/dailyden.games\/crosswired\/$/)
 })
 
 test('a hint recommends a legal move from the current board and charges once', () => {

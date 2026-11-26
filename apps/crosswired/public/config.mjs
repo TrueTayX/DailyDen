@@ -1,5 +1,5 @@
 export const GAME_ID = 'crosswired'
-export const GAME_NAME = 'Crosswired'
+export const GAME_NAME = 'SwitchLight'
 export const TIME_ZONE = 'America/Los_Angeles'
 export const EPOCH = '2026-11-23'
 export const GENERATOR = '1.0.0'
