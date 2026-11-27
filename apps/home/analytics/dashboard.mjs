@@ -6,7 +6,7 @@ const dayMs = 86400000
 const number = new Intl.NumberFormat()
 const labels = {
   direct: 'Direct / unknown', 'daily-den': 'Other Daily Den pages', lineup: 'Lineup',
-  switchlight: 'SwitchLight', unruled: 'Unruled', cropweave: 'CropWeave',
+  switchlight: 'WireWise', unruled: 'Unruled', cropweave: 'CropWeave',
   sponsor: 'Sponsor', contact: 'Contact', privacy: 'Privacy'
 }
 const name = value => labels[value] ?? value.replace(/^web:/, '')

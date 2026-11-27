@@ -6,7 +6,7 @@ const buttons = {
   'stats-button': 'View stats', 'tour-back': 'Tour back', 'tour-next': 'Tour next / play',
   share: 'Copy result', practice: 'Practice this puzzle', reveal: 'See the best-known farm',
   'show-solution': 'Reveal layout', feedback: 'Send beta feedback', 'achievements-button': 'View achievements',
-  home: 'Daily Den', switchlight: 'Play SwitchLight', sponsor: 'Sponsor', contact: 'Contact',
+  home: 'Daily Den', switchlight: 'Play WireWise', sponsor: 'Sponsor', contact: 'Contact',
   privacy: 'Privacy', 'close-help': 'Close how to play', 'close-settings': 'Close settings',
   'close-tutorial': 'Skip tour', 'close-score-detail': 'Close scoring breakdown',
   'close-outcome': 'Close result', 'close-solution': 'Close solution', 'close-stats': 'Close stats',

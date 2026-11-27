@@ -9,5 +9,5 @@ const today = getPuzzleDate()
 const through = today < archive.calendar.at(-1).date ? today : archive.calendar.at(-1).date
 if (through > current && archive.calendar.some(day => day.date === through)) {
   await writeFile(release, through + '\n')
-  console.log('Publishing SwitchLight through ' + through)
-} else console.log('SwitchLight release is current through ' + current)
+  console.log('Publishing WireWise through ' + through)
+} else console.log('WireWise release is current through ' + current)

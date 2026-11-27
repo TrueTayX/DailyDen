@@ -167,6 +167,7 @@ h1, h2, h3, p { margin: 0; }
 
 @media (max-width: 48rem) {
   .game-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .game-grid > li:has(.unruled-art) { grid-column-start: 1; }
 }
 
 @media (max-width: 39rem) {

@@ -8,6 +8,7 @@ const games = ['lineup', 'unruled', 'switchlight', 'cropweave']
 
 export function referral(referrer, page) {
   const tag = page.searchParams.get('from')
+  if (tag === 'wirewise') return 'switchlight'
   if (games.includes(tag)) return tag
   if (!referrer) return 'direct'
   try {
@@ -17,7 +18,7 @@ export function referral(referrer, page) {
     if (host === 'lineup.day') return 'lineup'
     if (host === 'dailyden.games') {
       const path = url.pathname.split('/')[1]
-      if (['crosswired', 'switchlight'].includes(path)) return 'switchlight'
+      if (['crosswired', 'switchlight', 'wirewise'].includes(path)) return 'switchlight'
       if (['farmhouse', 'cropweave'].includes(path)) return 'cropweave'
       if (['rulebreaker', 'unruled'].includes(path)) return 'unruled'
       return 'daily-den'

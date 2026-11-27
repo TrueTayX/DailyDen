@@ -1,6 +1,6 @@
 # CropWeave Beta
 
-CropWeave publishes one shared puzzle at Pacific midnight, with the same `getPuzzleDate` used by SwitchLight. Unruled calls the shared helper with its existing browser-local behavior. Lineup is served separately and uses the browser's local date. Pacific time keeps the static release and shared puzzle identical across regions.
+CropWeave publishes one shared puzzle at Pacific midnight, with the same `getPuzzleDate` used by WireWise. Unruled calls the shared helper with its existing browser-local behavior. Lineup is served separately and uses the browser's local date. Pacific time keeps the static release and shared puzzle identical across regions.
 
 The fixed launch date is November 26, 2026. The archive has 70 gate-checked dates through February 3, 2027 and 35 same-date reserves. The public build includes the released dates only. The source repository itself contains the full archive.
 

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
 import { readFile } from 'node:fs/promises'
 import { applyPresses, asMask, cellIndex, cellsIn, countBits, flipSets } from '../public/engine.mjs'
-import { GAME_ID, PAR_RANGES, PROBE_LIMITS, TIERS } from '../public/config.mjs'
+import { GAME_ID, GAME_SLUG, PAR_RANGES, PROBE_LIMITS, TIERS } from '../public/config.mjs'
 import { STAMPS } from '../public/stamps.mjs'
 import { dateFor, familyNames, FAMILY_RELEASES, STAMP_COOLDOWN, GOAL_COOLDOWN } from './calendar.mjs'
 import { goalKey, markedCells, probeNumber, signature, symmetryFlag } from './puzzles.mjs'
@@ -12,13 +12,16 @@ import { independentPar } from './independent-par.mjs'
 const content = new URL('../content/', import.meta.url)
 const { calendar, pool } = JSON.parse(await readFile(new URL('calendar.json', content), 'utf8'))
 const through = (await readFile(new URL('published-through.txt', content), 'utf8')).trim()
-const released = JSON.parse(await readFile(new URL(`../../../dist/${GAME_ID}/calendar.json`, import.meta.url), 'utf8'))
+const released = JSON.parse(await readFile(new URL(`../../../dist/${GAME_SLUG}/calendar.json`, import.meta.url), 'utf8'))
 assert.ok(calendar.length >= 800)
 assert.equal(released.publishedThrough, through)
 assert.deepEqual(Object.keys(released.days), calendar.filter(day => day.date <= through).map(day => day.date))
 const base = process.env.CROSSWIRED_BASE
 if (/^[a-f0-9]{40}$/.test(base ?? '') && !/^0+$/.test(base)) {
-  const prior = spawnSync('git', ['show', `${base}:dist/${GAME_ID}/calendar.json`], { encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 })
+  const getCalendar = slug => spawnSync('git', ['show', `${base}:dist/${slug}/calendar.json`],
+    { encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 })
+  const currentPath = getCalendar(GAME_SLUG)
+  const prior = currentPath.status === 0 ? currentPath : getCalendar(GAME_ID)
   if (prior.status === 0) {
     for (const [date, day] of Object.entries(JSON.parse(prior.stdout).days)) {
       assert.deepEqual(released.days[date], day, `Published day ${date} changed or was removed`)

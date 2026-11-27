@@ -1,2 +1,6 @@
 /farmhouse /cropweave/ 301
 /farmhouse/ /cropweave/ 301
+/crosswired /wirewise/ 301
+/crosswired/* /wirewise/:splat 301
+/switchlight /wirewise/ 301
+/switchlight/* /wirewise/:splat 301
