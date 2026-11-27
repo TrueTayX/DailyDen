@@ -118,7 +118,7 @@ function render(data) {
   }))
   table('daily', ['Pacific day', 'Unique browsers', 'Views', 'Unique clickers'],
     days.slice().reverse().map(row => [row.day, row.unique_browsers, row.page_views, row.unique_clickers]))
-  table('referrals', ['Source', 'Views', 'Daily uniques summed'],
+  table('referrals', ['Source', 'Views', 'Daily visitor totals'],
     data.referrals.map(row => [name(row.source), row.page_views, row.browser_days]))
   table('clicks', ['Tile or action', 'Clicks'], [...clicks].sort((a, b) => b[1] - a[1]).map(([target, count]) => [name(target), count]))
   table('daily-clicks', ['Pacific day', 'Tile or action', 'Clicks', 'Unique clickers'],
@@ -183,7 +183,7 @@ $('export').addEventListener('click', () => {
   const rows = [
     ['Report', 'Pacific day', 'Source or action', 'Views or clicks', 'Unique browsers or clickers'],
     ...fullDays(report).map(row => ['Daily visits', row.day, '', row.page_views, row.unique_browsers]),
-    ...report.referrals.map(row => ['Range referrals (daily uniques summed)', '', name(row.source), row.page_views, row.browser_days]),
+    ...report.referrals.map(row => ['Referrals (one count per browser per source per day)', '', name(row.source), row.page_views, row.browser_days]),
     ...report.clicks.map(row => ['Daily clicks', row.day, name(row.target), row.clicks, row.unique_clickers])
   ]
   const csv = rows.map(row => row.map(value => '"' + String(value).replaceAll('"', '""') + '"').join(',')).join('\r\n')
