@@ -171,10 +171,7 @@ function refreshBoard() {
     const row = node('li')
     const mask = columns[cell] ?? 0n
     const flipped = cellsIn(puzzle.size).filter(i => hasBit(mask, i))
-    const [r, c] = cellCoordinates(cell, puzzle.size)
-    const label = node('span', 'history-label', `R${r + 1} C${c + 1}`)
-    label.setAttribute('aria-hidden', 'true')
-    row.append(miniature(mask, puzzle.size, { current: cell }), label,
+    row.append(miniature(mask, puzzle.size, { current: cell }),
       node('span', 'sr-only', `Pressed ${position(cell, puzzle.size)}. Flipped ` + (flipped.map(i => position(i, puzzle.size)).join('; ') || 'no lights')))
     return row
   }))
