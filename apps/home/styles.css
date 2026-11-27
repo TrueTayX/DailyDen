@@ -109,23 +109,48 @@ h1, h2, h3, p { margin: 0; }
   gap: clamp(.5rem, 2vw, 1.25rem);
   border-bottom: 1px solid var(--rule);
 }
-.lineup-art {
-  background-color: #e6efbd;
-  background-image: repeating-linear-gradient(0deg, transparent 0 27px, #3445231c 27px 28px);
+.game .lineup-art {
+  position: relative;
+  gap: clamp(1rem, 5vw, 2.1875rem);
+  background: radial-gradient(ellipse at 28% 40%, #1f2842, #0f1320 72%);
 }
-.lineup-art span {
+.lineup-art::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 2px;
+  background: linear-gradient(90deg, #5b8cff, #8e6bff);
+}
+.lineup-brand {
+  display: block;
+  border-radius: 14px;
+  box-shadow: 0 0 0 1px #35436a;
+}
+.lineup-example {
   display: grid;
-  place-items: center;
-  width: clamp(2.8rem, 8vw, 4.65rem);
-  aspect-ratio: 1;
-  border: 1px solid var(--ink);
-  box-shadow: 3px 3px 0 var(--ink);
-  background-color: #f9f7dd;
-  font: 700 clamp(1.4rem, 4vw, 2.35rem)/1 Georgia, serif;
+  gap: 2px;
+  width: 108px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: lineup-rank;
+  font: 700 .5rem/1 system-ui, sans-serif;
 }
-.lineup-art span:first-child { transform: translateY(.55rem) rotate(-7deg); }
-.lineup-art span:nth-child(2) { transform: translateY(-.55rem) rotate(5deg); background: #fbc88c; }
-.lineup-art span:last-child { transform: rotate(-3deg); }
+.lineup-example li {
+  display: grid;
+  grid-template-columns: 10px 1fr;
+  align-items: center;
+  gap: 3px;
+  min-height: clamp(.625rem, calc(3vh - .7rem), 1rem);
+  padding-inline: 5px;
+  border-radius: 3px;
+  color: #fff;
+}
+.lineup-example li::before { counter-increment: lineup-rank; content: counter(lineup-rank); }
+.lineup-example .lineup-correct { background: #4caf6e; }
+.lineup-example .lineup-near { background: #d4a032; color: #1a1a1a; }
+.lineup-example .lineup-far { background: #c0463b; }
+#play-lineup span { font-family: "DejaVu Sans", sans-serif; }
 
 .unruled-art {
   background-color: #e6def5;
@@ -198,7 +223,6 @@ h1, h2, h3, p { margin: 0; }
   .games h2 { padding-bottom: .35rem; }
   .game-grid { gap: clamp(.55rem, 1.1vh, 1.25rem); margin-top: .7rem; }
   .game-art { min-height: clamp(4.5rem, calc(19vh - 5.55rem), 9.75rem); }
-  .lineup-art span { width: clamp(2.4rem, 6vh, 4.65rem); }
   .rule-token { width: clamp(2.4rem, 6vh, 4.65rem); }
   .crosswired-art { grid-template-columns: repeat(3, clamp(1.15rem, calc(4.2vh - 1rem), 2.25rem)); }
   .game-copy { padding-block: clamp(.5rem, 1.2vh, 1.65rem); }
@@ -236,7 +260,6 @@ h1, h2, h3, p { margin: 0; }
   .game h3 { font-size: clamp(1.2rem, 2.5vw, 1.8rem); }
   .game h3 + p { margin: .25rem 0 .4rem; font-size: .9rem; line-height: 1.35; }
   .game-art { min-height: clamp(4.25rem, 12vh, 7rem); gap: clamp(.35rem, 1.5vw, 1rem); }
-  .lineup-art span { width: clamp(2rem, 5vw, 3.65rem); font-size: clamp(1.25rem, 3vw, 2rem); }
   .rule-token { width: clamp(1.1rem, 3vw, 2.4rem); }
   .rule-arrow { font-size: clamp(1.3rem, 2.5vw, 2.15rem); }
   .crosswired-art { grid-template-columns: repeat(3, clamp(1.15rem, 2.7vh, 1.75rem)); }
@@ -261,9 +284,9 @@ h1, h2, h3, p { margin: 0; }
   .game h3 + p { margin: .14rem 0 .22rem; font-size: .82rem; }
   .play { min-height: 1.3rem; padding: 0; color: var(--ink); background: none; }
   .game:is(:hover, :focus-visible) .play { background: none; }
-  .lineup-art span { width: clamp(.95rem, 5vw, 1.45rem); font-size: .95rem; box-shadow: 1px 2px 0 var(--ink); }
-  .lineup-art span:first-child { transform: translateY(.22rem) rotate(-7deg); }
-  .lineup-art span:nth-child(2) { transform: translateY(-.22rem) rotate(5deg); }
+  .lineup-art::before { height: 1px; }
+  .lineup-brand { width: 43px; height: 43px; border-radius: 10px; }
+  .lineup-example { display: none; }
   .rule-token { width: .95rem; }
   .rule-arrow { margin-inline: .12rem; font-size: .95rem; }
   .crosswired-art { grid-template-columns: repeat(3, .7rem); }
@@ -277,7 +300,6 @@ h1, h2, h3, p { margin: 0; }
   .hero-copy { padding: .6rem 1rem; }
   .game-art { min-height: 3.15rem; }
   .crosswired-art { grid-template-columns: repeat(3, .65rem); gap: .2rem; }
-  .lineup-art span { width: 1.85rem; font-size: 1.15rem; }
   .game .cropweave-art img { width: 2rem; padding: 2px; }
   .game-copy { padding: .4rem .55rem; }
   .game h3 + p { margin-bottom: .25rem; font-size: .8rem; }
@@ -296,6 +318,8 @@ h1, h2, h3, p { margin: 0; }
   .game-grid { gap: .4rem; }
   .games h2 { font-size: 1.1rem; padding-bottom: .2rem; }
   .game-art { min-height: 2.35rem; }
+  .lineup-brand { width: 29px; height: 29px; border-radius: 7px; }
+  .lineup-example { display: none; }
   .game h3 { font-size: 1.12rem; }
   .game .cropweave-art img { width: 1.55rem; }
   .game-copy { padding: .25rem .45rem; }
