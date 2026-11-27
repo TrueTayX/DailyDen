@@ -4,7 +4,7 @@
   "compatibility_date": "2026-11-27",
   "workers_dev": false,
   "preview_urls": false,
-  "routes": [{ "pattern": "dailyden.games/api/home-analytics/events", "zone_name": "dailyden.games" }],
+  "routes": [{ "pattern": "dailyden.games/api/home-analytics/events*", "zone_name": "dailyden.games" }],
   "d1_databases": [{
     "binding": "HOME_ANALYTICS",
     "database_name": "dailyden-analytics",
