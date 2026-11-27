@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Homepage analytics | Daily Den</title>
+  <link rel="stylesheet" href="./dashboard.css">
+  <script type="module" src="./dashboard.mjs"></script>
+</head>
+<body>
+  <header class="bar"><a href="/">‹ Daily Den</a><button id="logout" hidden>Sign out</button></header>
+  <main>
+    <h1>Homepage analytics</h1>
+    <form id="login" class="surface" hidden>
+      <label for="password">Dashboard password</label>
+      <input id="password" type="password" name="password" autocomplete="current-password" maxlength="1024" required>
+      <button class="primary">Sign in</button>
+    </form>
+    <p id="status" role="status">Loading analytics…</p>
+    <div id="report" hidden>
+      <form id="filters" class="filters">
+        <label>From <input id="from" type="date" required></label>
+        <label>Through <input id="to" type="date" required></label>
+        <button class="primary">Apply</button>
+        <button type="button" id="export">Download CSV</button>
+        <span>Pacific time</span>
+      </form>
+      <div id="summary" class="summary"></div>
+      <section class="surface">
+        <h2>Daily visitors</h2>
+        <p class="muted">Unique browsers per Pacific day</p>
+        <canvas id="trend" height="168" aria-hidden="true"></canvas>
+        <details><summary>Daily totals</summary><div id="daily"></div></details>
+      </section>
+      <div class="breakdowns">
+        <section class="surface"><h2>Where visitors came from</h2><div id="referrals"></div></section>
+        <section class="surface"><h2>What visitors clicked</h2><div id="clicks"></div>
+          <details><summary>Clicks by day</summary><div id="daily-clicks"></div></details>
+        </section>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

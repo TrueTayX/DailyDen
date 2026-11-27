@@ -9,7 +9,13 @@ Use one Cloudflare D1 database named `dailyden-analytics` for the homepage and f
 3. If deploying through the Cloudflare dashboard, create a Worker named `dailyden-home-analytics` using [worker.mjs](worker.mjs), add the same D1 binding and route, and deploy. Leave the public workers.dev and preview URLs disabled.
 4. Visit the production homepage with browser privacy signals off. Open a game tile, return from one of the owned games using its Daily Den link, and check the reporting views below. Network requests to the collector should return HTTP 204. The site works if the analytics endpoint is absent or unavailable.
 
-## Private reports in D1 Console
+## Dashboard
+
+Open [Daily Den analytics](https://dailyden.games/analytics/). In **Workers & Pages → dailyden-home-analytics → Settings → Variables and Secrets**, add a **Secret** named `ANALYTICS_ADMIN_SECRET` with a randomly generated password of at least 32 characters. Save it in your password manager. Replace the Worker code with the current [worker.mjs](worker.mjs) and deploy. Existing installations keep their D1 binding and exact route. The dashboard calls the same route for sign-in, sign-out, and reports. No new D1 migration is needed for the dashboard.
+
+The dashboard shows date-filtered daily uniques, total views, referral sources, clicks by action and day, and a CSV download. Its 12-hour sign-in is stored in a secure, HttpOnly cookie. Replacing the secret invalidates existing sessions. Use a distinct, randomly generated password for this dashboard.
+
+## D1 Console queries
 
 ```sql
 SELECT * FROM homepage_daily ORDER BY day DESC LIMIT 30;
@@ -21,4 +27,4 @@ Use the first query for unique browsers and total homepage loads. The second bre
 
 Days start at midnight Pacific. Browser storage resets, separate devices, privacy signals, and blockers affect the totals. Tracking begins after setup. Referrals use the referring hostname and recognize the paths of Daily Den’s games. A link from an owned game can explicitly use `?from=lineup`, `?from=unruled`, `?from=switchlight`, or `?from=cropweave`. Lineup links that send a normal `lineup.day` referrer are recognized without a tag. Missing or suppressed referrers are counted as direct unless an owned-game tag is present.
 
-No report is served publicly. D1 stores a daily hash of the browser’s random ID, the day, source, tracked action, and a count. The client sends its random ID to the collector for hashing. Its requests omit credentials and respect GPC and DNT.
+The dashboard report is accessible only with a signed-in session. D1 stores a daily hash of the browser’s random ID, the day, source, tracked action, and a count. The client sends its random ID to the collector for hashing. Its requests omit credentials and respect GPC and DNT.
