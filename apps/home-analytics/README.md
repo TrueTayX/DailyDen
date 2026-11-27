@@ -28,3 +28,11 @@ Use the first query for unique browsers and total homepage loads. The second bre
 Days start at midnight Pacific. Browser storage resets, separate devices, privacy signals, and blockers affect the totals. Tracking begins after setup. Referrals use the referring hostname and recognize the paths of Daily Den’s games. A link from an owned game can explicitly use `?from=lineup`, `?from=unruled`, `?from=switchlight`, or `?from=cropweave`. Lineup links that send a normal `lineup.day` referrer are recognized without a tag. Missing or suppressed referrers are counted as direct unless an owned-game tag is present.
 
 The dashboard report is accessible only with a signed-in session. D1 stores a daily hash of the browser’s random ID, the day, source, tracked action, and a count. The client sends its random ID to the collector for hashing. Its requests omit credentials and respect GPC and DNT.
+
+## Add CropWeave to an existing dashboard
+
+1. In the `dailyden-analytics` D1 Console, run [the CropWeave migration](migrations/0002_cropweave.sql).
+2. Replace the code for `dailyden-home-analytics` with the updated [worker.mjs](worker.mjs) and deploy. Keep the existing `HOME_ANALYTICS` binding, dashboard secret, and `dailyden.games/api/home-analytics/events*` route.
+3. Play CropWeave with browser privacy signals off and open the [CropWeave report](https://dailyden.games/analytics/?game=cropweave) under the same sign-in. Select **Refresh** to load the latest counts.
+
+CropWeave counts a browser once a day for visits, once per daily puzzle for first placements and finished farms, and once per puzzle per day for completed puzzles reopened. Practice play does not enter the official funnel. Button clicks count individually. The share metrics include copy attempts, copy successes and failures, and arrivals from tagged result links. The achievements column is ready for an award event when that feature is implemented. Collection begins after the migration and Worker update. Counts reflect the Pacific day on which the collector received the event.

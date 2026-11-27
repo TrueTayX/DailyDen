@@ -2,6 +2,7 @@ import { getPuzzleDate,dayStreak,gameStorage,copyText } from '../assets/game-dai
 import { categories,sprite } from './config.mjs'
 import { compile,score,rating,legal,EMPTY,ROCK,WATER,VOID } from './engine.mjs'
 import { puzzleForDay,shareText,starText,summarized } from './daily.mjs'
+import { cropAnalytics } from './analytics.mjs'
 import { telemetry } from './telemetry.mjs'
 
 const $=id=>document.getElementById(id)
@@ -21,6 +22,13 @@ let settings=object(shared.read('settings',{}))
 const progress=object(store.read('progress',{}))
 const today=getPuzzleDate()
 const review=new URLSearchParams(location.search).get('review')
+const track = cropAnalytics(review)
+if (document.prerendering) document.addEventListener('prerenderingchange', trackVisit, { once: true })
+else trackVisit()
+function trackVisit() {
+  track('visit')
+  if (new URLSearchParams(location.search).get('ref') === 'share') track('share_visit')
+}
 let plot,puzzle,official,run,events
 let practice=false,selected=null,inspected=null,recent=null,hovered=null,focusType=null,category=null,prediction=null
 let roving=0,hold,skipClick=false,deltaTimer,details
@@ -204,6 +212,7 @@ function createUI() {
     for (const [i,c] of categories.entries()) {
       const button=element('button'), coins=element('strong','0')
       button.type='button'
+      button.dataset.analyticsButton='score-category-'+i
       const label=element('span',c.name)
       const symbol=element('span',['●','▦','✿','⬡','≈','✥','⌂','◇'][i],'category-symbol')
       symbol.setAttribute('aria-hidden','true')
@@ -279,7 +288,10 @@ function act(index) {
   }
   if (!run.started) {
     run.started=Date.now()
-    if (!practice&&!review) events.event('puzzle_started')
+    if (!practice&&!review) {
+      events.event('puzzle_started')
+      track('start', { puzzle: puzzle.date })
+    }
   }
   const tile=selected
   run.history.push({index,before:EMPTY,selected})
@@ -397,6 +409,7 @@ $('finish').addEventListener('click',()=>{
     events.event('puzzle_finished',{...run.result,time:Math.min(86400000,Date.now()-run.started),undos:run.undos,
       pickups:run.pickups,preview:run.preview,beatBest:run.result.coins>puzzle.bestKnown.score})
     events.flush()
+    track('finish', { puzzle: puzzle.date, stars: run.result.stars, coins: run.result.coins })
   }
   save()
   render()
@@ -406,8 +419,12 @@ $('results').addEventListener('click',outcome)
 $('share').addEventListener('click',async()=>{
   if (!review) events.event('share_clicked')
   const text=shareText(puzzle,official.result,plot.config.cards[puzzle.ruleCard].name)
-  if (await copyText(text)) $('copied').textContent='Spoiler-free result copied.'
-  else {
+  track('share_attempt')
+  if (await copyText(text)) {
+    track('share_success')
+    $('copied').textContent='Spoiler-free result copied.'
+  } else {
+    track('share_failure')
     $('share-fallback').hidden=false
     $('share-fallback').value=text
     $('share-fallback').select()
@@ -416,6 +433,7 @@ $('share').addEventListener('click',async()=>{
 $('practice').addEventListener('click',()=>{
   close('outcome')
   practice=true
+  track('practice')
   run=attempt()
   resetBoard()
 })
@@ -437,6 +455,7 @@ $('reveal').addEventListener('click',()=>{
   $('solution').showModal()
 })
 $('show-solution').addEventListener('click',()=>{
+  track('reveal')
   const layout=puzzle.bestKnown.layout, display=score(plot,layout,true)
   $('solution-board').style.setProperty('--size',plot.size)
   $('solution-board').replaceChildren(...layout.map((_,i)=>{
@@ -505,6 +524,7 @@ async function load() {
   }
   plot=compile(puzzle)
   official=hydrate(review?null:progress[puzzle.date])
+  if (official.result) track('reopen', { puzzle: puzzle.date })
   run=official
   roving=plot.open[0]
   events=telemetry(store,puzzle,document.querySelector('meta[name="cropweave-analytics"]')?.content)

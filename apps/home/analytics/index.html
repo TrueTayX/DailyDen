@@ -11,7 +11,11 @@
 <body>
   <header class="bar"><a href="/">‹ Daily Den</a><button id="logout" hidden>Sign out</button></header>
   <main>
-    <h1>Homepage analytics</h1>
+    <h1 id="dashboard-title">Homepage analytics</h1>
+    <nav class="dashboard-nav" aria-label="Analytics views">
+      <a id="home-view" href="./" aria-current="page">Homepage</a>
+      <a id="crop-view" href="?game=cropweave">CropWeave</a>
+    </nav>
     <form id="login" class="surface" hidden>
       <label for="password">Dashboard password</label>
       <input id="password" type="password" name="password" autocomplete="current-password" maxlength="1024" required>
@@ -20,13 +24,23 @@
     <p id="status" role="status">Loading analytics…</p>
     <div id="report" hidden>
       <form id="filters" class="filters">
+        <label id="preset-label" hidden>Date range
+          <select id="preset">
+            <option value="">Custom dates</option>
+            <option value="7">Last 7 days</option>
+            <option value="30">Last 30 days</option>
+            <option value="90">Last 90 days</option>
+          </select>
+        </label>
         <label>From <input id="from" type="date" required></label>
         <label>Through <input id="to" type="date" required></label>
         <button class="primary">Apply</button>
         <button type="button" id="export">Download CSV</button>
+        <button type="button" id="export-buttons" hidden>Download button CSV</button>
         <span>Pacific time</span>
       </form>
       <div id="summary" class="summary"></div>
+      <div id="home-report">
       <section class="surface">
         <h2>Daily visitors</h2>
         <p class="muted">Unique browsers per Pacific day</p>
@@ -42,6 +56,39 @@
         <section class="surface"><h2>What visitors clicked</h2><div id="clicks"></div>
           <details><summary>Clicks by day</summary><div id="daily-clicks"></div></details>
         </section>
+      </div>
+      </div>
+      <div id="crop-report" hidden>
+        <div class="breakdowns">
+          <section class="surface">
+            <h2>Funnel reach</h2>
+            <div id="crop-funnel"></div>
+            <p class="muted">Unique browsers at each stage in the selected dates. A player can start and finish on different days.</p>
+          </section>
+          <section class="surface">
+            <h2>Daily players</h2>
+            <canvas id="crop-trend" height="168" aria-hidden="true"></canvas>
+            <p id="crop-tracking" class="muted"></p>
+          </section>
+        </div>
+        <section class="surface crop-daily">
+          <h2>Daily funnel totals</h2>
+          <p class="muted">Select a day to see its button activity. Rates compare events on that day.</p>
+          <div id="crop-daily"></div>
+        </section>
+        <div class="breakdowns">
+          <section class="surface">
+            <h2>Button clicks</h2>
+            <label>Show clicks for <select id="button-day"><option value="">Entire date range</option></select></label>
+            <div id="crop-buttons"></div>
+          </section>
+          <section class="surface">
+            <h2>How to read these numbers</h2>
+            <p>New players are browsers first seen since tracking began. Reloads count once per day. Starts and finishes count once per browser per puzzle. Reopens count once per browser per puzzle per day.</p>
+            <p>Share attempts include copying results today. Share visits come from tagged result links. Achievement counts will appear when the game awards achievements.</p>
+            <p>Gameplay in practice mode is excluded from starts and finishes. Practice and reveal actions have their own counts. Select <strong>Refresh</strong> to load current data.</p>
+          </section>
+        </div>
       </div>
     </div>
   </main>

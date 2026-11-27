@@ -1,3 +1,5 @@
+import { cropCSV, renderButtons, renderCrop } from './crop-report.mjs'
+
 const $ = id => document.getElementById(id)
 const endpoint = '/api/home-analytics/events'
 const dayMs = 86400000
@@ -10,6 +12,20 @@ const labels = {
 const name = value => labels[value] ?? value.replace(/^web:/, '')
 let report
 let busy = false
+const crop = new URLSearchParams(location.search).get('game') === 'cropweave'
+const chartId = crop ? 'crop-trend' : 'trend'
+if (crop) {
+  document.title = 'CropWeave analytics | Daily Den'
+  $('dashboard-title').textContent = 'CropWeave analytics'
+  $('home-view').removeAttribute('aria-current')
+  $('crop-view').setAttribute('aria-current', 'page')
+  $('home-report').hidden = true
+  $('crop-report').hidden = false
+  $('preset-label').hidden = false
+  $('export-buttons').hidden = false
+  $('export').textContent = 'Download daily CSV'
+  $('filters').querySelector('button').textContent = 'Refresh'
+}
 
 async function api(action, params = {}, data = {}) {
   const query = new URLSearchParams({ action, ...params })
@@ -22,7 +38,7 @@ async function api(action, params = {}, data = {}) {
   return body
 }
 
-function table(id, headers, rows) {
+function table(id, headers, rows, selectDay) {
   const container = $(id)
   if (!rows.length) {
     container.textContent = 'No activity in this date range.'
@@ -41,14 +57,25 @@ function table(id, headers, rows) {
   const body = table.createTBody()
   for (const row of rows) {
     const tr = body.insertRow()
-    for (const value of row) tr.insertCell().textContent = typeof value === 'number' ? number.format(value) : value
+    for (const [index, value] of row.entries()) {
+      const cell = tr.insertCell()
+      if (index === 0 && selectDay) {
+        const button = document.createElement('button')
+        button.type = 'button'
+        button.textContent = value
+        button.addEventListener('click', () => selectDay(value))
+        cell.append(button)
+      } else {
+        cell.textContent = typeof value === 'number' ? number.format(value) : value
+      }
+    }
   }
   wrapper.append(table)
   container.replaceChildren(wrapper)
 }
 
 function trend(days) {
-  const canvas = $('trend')
+  const canvas = $(chartId)
   const ratio = devicePixelRatio || 1
   const width = canvas.clientWidth
   if (!width) return
@@ -86,27 +113,17 @@ function trend(days) {
 
 function fullDays(data) {
   const totals = new Map(data.daily.map(row => [row.day, row]))
-  const clickers = new Map(data.dailyClickers.map(row => [row.day, row.unique_clickers]))
+  const clickers = new Map((data.dailyClickers ?? []).map(row => [row.day, row.unique_clickers]))
   const days = []
   for (let time = Date.parse(data.from); time <= Date.parse(data.to); time += dayMs) {
     const day = new Date(time).toISOString().slice(0, 10)
-    days.push({ day, unique_browsers: 0, page_views: 0, ...totals.get(day), unique_clickers: clickers.get(day) ?? 0 })
+    days.push({ day, unique_browsers: 0, page_views: 0, ...totals.get(day), ...(crop ? { unique_browsers: totals.get(day)?.players ?? 0 } : {}), unique_clickers: clickers.get(day) ?? 0 })
   }
   return days
 }
 
-function render(data) {
-  const days = fullDays(data)
-  const sum = key => days.reduce((total, row) => total + row[key], 0)
-  const today = days.find(row => row.day === data.today)
-  const clicks = new Map()
-  for (const row of data.clicks) clicks.set(row.target, (clicks.get(row.target) ?? 0) + row.clicks)
-  $('summary').replaceChildren(...[
-    ['Latest day’s unique browsers', (today ?? days.at(-1)).unique_browsers],
-    ['Average daily unique browsers', Math.round(sum('unique_browsers') / days.length)],
-    ['Homepage views', sum('page_views')],
-    ['Total clicks', [...clicks.values()].reduce((total, count) => total + count, 0)]
-  ].map(([label, value]) => {
+function cards(metrics) {
+  $('summary').replaceChildren(...metrics.map(([label, value]) => {
     const card = document.createElement('div')
     card.className = 'metric'
     const count = document.createElement('strong')
@@ -116,6 +133,26 @@ function render(data) {
     card.append(count, caption)
     return card
   }))
+}
+
+function render(data) {
+  const days = fullDays(data)
+  if (crop) {
+    renderCrop(data, days, table, cards)
+    $('report').hidden = false
+    trend(days)
+    return
+  }
+  const sum = key => days.reduce((total, row) => total + row[key], 0)
+  const today = days.find(row => row.day === data.today)
+  const clicks = new Map()
+  for (const row of data.clicks) clicks.set(row.target, (clicks.get(row.target) ?? 0) + row.clicks)
+  cards([
+    ['Latest day’s unique browsers', (today ?? days.at(-1)).unique_browsers],
+    ['Average daily unique browsers', Math.round(sum('unique_browsers') / days.length)],
+    ['Homepage views', sum('page_views')],
+    ['Total clicks', [...clicks.values()].reduce((total, count) => total + count, 0)]
+  ])
   table('daily', ['Pacific day', 'Unique browsers', 'Views', 'Unique clickers'],
     days.slice().reverse().map(row => [row.day, row.unique_browsers, row.page_views, row.unique_clickers]))
   table('referrals', ['Source', 'Views', 'Daily visitor totals'],
@@ -137,7 +174,7 @@ function showLogin(message) {
 
 async function load(params) {
   try {
-    const data = await api('report', params)
+    const data = await api('report', crop ? { game: 'cropweave', ...params } : params)
     report = data
     $('from').value = data.from
     $('to').value = data.to
@@ -178,21 +215,35 @@ $('logout').addEventListener('click', async () => {
   try { await api('logout'); showLogin('Signed out.') }
   catch (error) { $('status').textContent = error.message }
 })
+function download(rows, label) {
+  const csv = rows.map(row => row.map(value => '"' + String(value).replaceAll('"', '""') + '"').join(',')).join('\r\n')
+  const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }))
+  const link = document.createElement('a')
+  link.href = url
+  link.download = `dailyden-${label}${report.from}-to-${report.to}.csv`
+  link.click()
+  setTimeout(() => URL.revokeObjectURL(url), 1000)
+}
 $('export').addEventListener('click', () => {
   if (!report) return
-  const rows = [
+  const rows = crop ? cropCSV(report, fullDays(report)) : [
     ['Report', 'Pacific day', 'Source or action', 'Views or clicks', 'Unique browsers or clickers'],
     ...fullDays(report).map(row => ['Daily visits', row.day, '', row.page_views, row.unique_browsers]),
     ...report.referrals.map(row => ['Referrals (one count per browser per source per day)', '', name(row.source), row.page_views, row.browser_days]),
     ...report.clicks.map(row => ['Daily clicks', row.day, name(row.target), row.clicks, row.unique_clickers])
   ]
-  const csv = rows.map(row => row.map(value => '"' + String(value).replaceAll('"', '""') + '"').join(',')).join('\r\n')
-  const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }))
-  const link = document.createElement('a')
-  link.href = url
-  link.download = `dailyden-${report.from}-to-${report.to}.csv`
-  link.click()
-  setTimeout(() => URL.revokeObjectURL(url), 1000)
+  download(rows, crop ? 'cropweave-daily-' : '')
 })
-new ResizeObserver(() => { if (report) trend(fullDays(report)) }).observe($('trend'))
+$('export-buttons').addEventListener('click', () => {
+  if (report) download(cropCSV(report, fullDays(report), $('button-day').value), 'cropweave-buttons-')
+})
+$('button-day').addEventListener('change', () => { if (report) renderButtons(report, table) })
+$('preset').addEventListener('change', () => {
+  const range = Number($('preset').value)
+  if (!report || !range) return
+  $('to').value = report.today
+  $('from').value = new Date(Date.parse(report.today) - (range - 1) * dayMs).toISOString().slice(0, 10)
+})
+for (const id of ['from', 'to']) $(id).addEventListener('change', () => { $('preset').value = '' })
+new ResizeObserver(() => { if (report) trend(fullDays(report)) }).observe($(chartId))
 load()
