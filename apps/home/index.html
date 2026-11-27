@@ -10,6 +10,7 @@
   <meta property="og:type" content="website">
   <link rel="canonical" href="https://dailyden.games/">
   <link rel="stylesheet" href="styles.css">
+  <script type="module" src="./analytics.mjs"></script>
   <title>Daily Den — Daily Puzzle Games</title>
 </head>
 <body>
@@ -33,7 +34,7 @@
       <h2 id="games-heading">The games</h2>
       <ul class="game-grid">
         <li>
-          <a class="game" href="https://lineup.day/" aria-labelledby="play-lineup">
+          <a class="game" href="https://lineup.day/" data-analytics-target="lineup" aria-labelledby="play-lineup">
             <div class="game-art lineup-art" aria-hidden="true">
               <span>3</span><span>1</span><span>2</span>
             </div>
@@ -45,7 +46,7 @@
           </a>
         </li>
         <li>
-          <a class="game" href="./unruled/" aria-labelledby="play-unruled">
+          <a class="game" href="./unruled/" data-analytics-target="unruled" aria-labelledby="play-unruled">
             <div class="game-art unruled-art" aria-hidden="true">
               <span class="rule-token"></span><span class="rule-arrow">→</span><span class="rule-token token-outline"></span>
             </div>
@@ -57,7 +58,7 @@
           </a>
         </li>
         <li>
-          <a class="game" href="./crosswired/" aria-labelledby="play-crosswired">
+          <a class="game" href="./crosswired/" data-analytics-target="switchlight" aria-labelledby="play-crosswired">
             <div class="game-art crosswired-art" aria-hidden="true">
               <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
             </div>
@@ -69,7 +70,7 @@
           </a>
         </li>
         <li>
-          <a class="game" href="./cropweave/" aria-labelledby="play-cropweave">
+          <a class="game" href="./cropweave/" data-analytics-target="cropweave" aria-labelledby="play-cropweave">
             <div class="game-art cropweave-art" aria-hidden="true">
               <img src="./cropweave/art/wheat.png" alt=""><img src="./cropweave/art/beehive.png" alt=""><img src="./cropweave/art/carrot.png" alt="">
             </div>

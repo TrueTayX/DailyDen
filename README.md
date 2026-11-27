@@ -50,3 +50,5 @@ See the [CropWeave release and review guide](apps/cropweave/README.md) for the d
 Square and round light shapes are reserved for Split. A Split partition assigns square lights to one hidden pattern and round lights to the other. The generator stores the square light positions in `split.marked`. Locks use a dashed tile outline and lock badge. Wrap uses edge arrows.
 
 The goal thumbnail uses the board’s light shapes at the same positions, with filled lights for on and hollow lights for off. Board labels identify each light as square or round before announcing its state.
+
+Homepage tracking and private D1 reports have a separate [setup guide](apps/home-analytics/README.md).
