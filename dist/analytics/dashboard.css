@@ -34,3 +34,14 @@ th,td{padding:8px 7px;border-bottom:1px solid #e6e1d3;text-align:right;font-vari
 th:first-child,td:first-child{text-align:left;overflow-wrap:anywhere}
 thead th{position:sticky;top:0;background:#fffdf7}
 @media(max-width:650px){.breakdowns{grid-template-columns:1fr}}
+.dashboard-nav{display:flex;gap:14px;border-bottom:1px solid #d8d6c8;margin:16px 0}
+.dashboard-nav a{padding:9px 2px;text-decoration:none}
+.dashboard-nav a[aria-current]{font-weight:750;border-bottom:3px solid #254c3e}
+select{font:inherit;color:inherit;min-height:44px;padding:5px 10px;border:1px solid #9baca0;border-radius:7px;background:#fffdf7}
+.filters select{display:block}
+.crop-daily{margin-top:14px}
+#crop-daily :is(th,td){white-space:nowrap}
+#crop-daily button{min-height:32px;padding:2px 5px}
+#crop-funnel p{display:flex;justify-content:space-between;margin:8px 0 2px}
+#crop-funnel progress{display:block;width:100%;accent-color:#3a6856}
+.breakdowns>section{min-width:0}

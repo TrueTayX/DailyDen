@@ -9,7 +9,7 @@ export function puzzleForDay(days,date) {
 export const starText = stars => '★'.repeat(stars)+'☆'.repeat(3-stars)
 
 export function shareText(puzzle,result,rule) {
-  return `${GAME_NAME} #${puzzle.day} ${starText(result.stars)} · ${result.coins} coins (${result.percent}% of best)\n${rule}\n${GAME_URL}`
+  return `${GAME_NAME} #${puzzle.day} ${starText(result.stars)} · ${result.coins} coins (${result.percent}% of best)\n${rule}\n${GAME_URL}/?ref=share`
 }
 
 export function summarized(records) {

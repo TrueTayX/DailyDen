@@ -101,7 +101,7 @@ test('strict star thresholds and spoiler-free sharing',()=>{
   const p={day:12,stars:[37,49,58],bestKnown:{score:61,layout:['SECRET-LAYOUT']},board:'SECRET-PLACEMENTS'}
   const result=rating(p,54)
   const share=shareText(p,{...result,moves:'SECRET-MOVES'},'Dry Season')
-  assert.equal(share,'CropWeave #12 ★★☆ · 54 coins (89% of best)\nDry Season\nhttps://dailyden.games/cropweave')
+  assert.equal(share,'CropWeave #12 ★★☆ · 54 coins (89% of best)\nDry Season\nhttps://dailyden.games/cropweave/?ref=share')
   assert.doesNotMatch(share,/SECRET|layout|board|placement|moves/i)
   assert.equal(rating(p,62).golden,true)
 })

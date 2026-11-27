@@ -47,6 +47,89 @@ function validDay(day) {
     new Date(day).toISOString().slice(0, 10) === day
 }
 
+const cropMilestones = new Set(['start', 'finish', 'reopen'])
+const cropEvents = new Set(['visit', 'share_visit', 'share_attempt', 'share_success', 'share_failure',
+  'achievement', 'practice', 'reveal', 'button', ...cropMilestones])
+const cropButtons = new Set([
+  'help-button', 'settings-button', 'pickup', 'scores-button', 'undo', 'finish', 'results', 'return',
+  'tour-again', 'contrast', 'motion', 'preview-enabled', 'reset-tips', 'stats-button', 'tour-back',
+  'tour-next', 'share', 'practice', 'reveal', 'show-solution', 'feedback', 'achievements-button',
+  'home', 'switchlight', 'sponsor', 'contact', 'privacy', 'close-help', 'close-settings', 'close-tutorial',
+  'close-score-detail', 'close-outcome', 'close-solution', 'close-stats', 'close-achievements'
+])
+
+function validCropEvent(event, day) {
+  if (!event || typeof event.id !== 'string' || !uuid.test(event.id) || !cropEvents.has(event.kind)) return false
+  if (cropMilestones.has(event.kind) &&
+      (typeof event.puzzle !== 'string' || !validDay(event.puzzle) || event.puzzle > day)) return false
+  if (event.kind === 'finish' &&
+      (!Number.isInteger(event.stars) || event.stars < 0 || event.stars > 3 ||
+       !Number.isInteger(event.coins) || event.coins < 0 || event.coins > 10000)) return false
+  if (event.kind === 'button') return cropButtons.has(event.detail) ||
+    (typeof event.detail === 'string' && /^score-category-[0-7]$/.test(event.detail))
+  return true
+}
+
+async function storeCropEvents(request, env) {
+  const input = await readJSON(request.body, 4096)
+  const day = dayFormat.format(new Date())
+  if (!input || typeof input.visitor !== 'string' || !uuid.test(input.visitor) ||
+      !Array.isArray(input.events) || !input.events.length || input.events.length > 16 ||
+      !input.events.every(event => validCropEvent(event, day))) return json({ error: 'Invalid event batch.' }, 400)
+
+  const hash = await crypto.subtle.digest('SHA-256', encoder.encode('cropweave:' + input.visitor))
+  const visitor = Array.from(new Uint8Array(hash), byte => byte.toString(16).padStart(2, '0')).join('')
+  try {
+    const db = env.HOME_ANALYTICS
+    const statements = input.events.map(event => {
+      const { kind, id, puzzle } = event
+      const dedup = kind === 'start' || kind === 'finish' ? puzzle :
+        kind === 'reopen' ? day + ':' + puzzle : kind === 'visit' || kind === 'share_visit' ? day : id
+      return db.prepare(`INSERT OR IGNORE INTO cropweave_activity
+        (event_key, day, visitor, kind, detail, stars, coins) VALUES (?, ?, ?, ?, ?, ?, ?)`)
+        .bind(`${visitor}:${kind}:${dedup}`, day, visitor, kind,
+          kind === 'button' ? event.detail : '', kind === 'finish' ? event.stars : null, kind === 'finish' ? event.coins : null)
+    })
+    if (input.events.some(event => event.kind === 'visit')) {
+      statements.unshift(db.prepare(`INSERT INTO cropweave_visitors (visitor, first_day) VALUES (?, ?)
+        ON CONFLICT(visitor) DO UPDATE SET first_day = MIN(first_day, excluded.first_day)`).bind(visitor, day))
+    }
+    await db.batch(statements)
+    return new Response(null, { status: 204, headers: { 'Cache-Control': 'no-store' } })
+  } catch {
+    console.error(JSON.stringify({ event: 'cropweave_analytics_write_failed' }))
+    return json({ error: 'Analytics unavailable.' }, 503)
+  }
+}
+
+async function cropReport(db, from, to, today) {
+  const queries = [
+    `SELECT e.day, SUM(kind='visit') AS players,
+      SUM(kind='visit' AND v.first_day=e.day) AS new_players,
+      SUM(kind='visit' AND v.first_day<e.day) AS returning_players,
+      SUM(kind='start') AS starts, SUM(kind='finish') AS finishes,
+      SUM(kind='finish' AND stars=3) AS three_stars,
+      ROUND(AVG(CASE WHEN kind='finish' THEN coins END), 1) AS average_coins,
+      SUM(kind='share_attempt') AS shares, SUM(kind='share_success') AS shared,
+      SUM(kind='share_failure') AS share_failures, SUM(kind='share_visit') AS share_visits,
+      SUM(kind='achievement') AS achievements, SUM(kind='reopen') AS reopens,
+      SUM(kind='practice') AS practices, SUM(kind='reveal') AS reveals
+      FROM cropweave_activity e LEFT JOIN cropweave_visitors v USING(visitor)
+      WHERE e.day BETWEEN ? AND ? GROUP BY e.day ORDER BY e.day DESC`,
+    `SELECT day, detail AS button, COUNT(*) AS clicks, COUNT(DISTINCT visitor) AS browsers
+      FROM cropweave_activity WHERE kind='button' AND day BETWEEN ? AND ? GROUP BY day, detail
+      ORDER BY day DESC, clicks DESC, button`,
+    `SELECT kind, COUNT(DISTINCT visitor) AS browsers FROM cropweave_activity
+      WHERE kind IN ('visit','start','finish') AND day BETWEEN ? AND ? GROUP BY kind`
+  ]
+  const [daily, buttons, funnel, tracking] = await db.batch([
+    ...queries.map(query => db.prepare(query).bind(from, to)),
+    db.prepare('SELECT MIN(first_day) AS first_day FROM cropweave_visitors')
+  ])
+  return json({ from, to, today, daily: daily.results, buttons: buttons.results,
+    funnel: funnel.results, trackingSince: tracking.results[0]?.first_day ?? null })
+}
+
 async function dashboard(request, env, url, action) {
   if (action === 'logout') return json({}, 200, { 'Set-Cookie': sessionCookie('', 0) })
   if (action !== 'login' && action !== 'report') return json({ error: 'Unknown action.' }, 404)
@@ -86,6 +169,7 @@ async function dashboard(request, env, url, action) {
   }
 
   try {
+    if (url.searchParams.get('game') === 'cropweave') return await cropReport(env.HOME_ANALYTICS, from, to, today)
     const queries = [
       'SELECT * FROM homepage_daily WHERE day BETWEEN ? AND ? ORDER BY day',
       'SELECT source, SUM(unique_browsers) AS browser_days, SUM(page_views) AS page_views FROM homepage_referrals WHERE day BETWEEN ? AND ? GROUP BY source ORDER BY page_views DESC, source',
@@ -110,10 +194,11 @@ export default {
     if (request.method !== 'POST') return respond(405)
     if (request.headers.get('Origin') !== origin) return respond(403)
     const action = url.searchParams.get('action')
-    if (action) return dashboard(request, env, url, action)
+    if (action && action !== 'cropweave') return dashboard(request, env, url, action)
     if (request.headers.get('Sec-GPC') === '1' || request.headers.get('DNT') === '1') return respond(204)
     if (request.headers.get('Content-Type')?.split(';')[0] !== 'application/json') return respond(415)
 
+    if (action === 'cropweave') return storeCropEvents(request, env)
     const event = await readJSON(request.body)
     if (!event || typeof event.visitor !== 'string' || !uuid.test(event.visitor) ||
         typeof event.source !== 'string' || (!sources.has(event.source) && !/^web:[a-z0-9.-]{1,253}$/.test(event.source)) ||
