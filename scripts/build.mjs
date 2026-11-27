@@ -2,7 +2,7 @@ import { execFileSync } from 'node:child_process'
 import { cp, mkdir, mkdtemp, readFile, rename, rm, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { GAME_ID as CROSSWIRED } from '../apps/crosswired/public/config.mjs'
+import { GAME_ID as CROSSWIRED, GAME_SLUG as WIREWISE } from '../apps/crosswired/public/config.mjs'
 import { publicCalendar } from '../apps/crosswired/scripts/publication.mjs'
 import { publicCalendar as cropCalendar } from '../apps/cropweave/scripts/publication.mjs'
 
@@ -19,9 +19,9 @@ try {
   const crosswired = join(root, 'apps', CROSSWIRED)
   const archive = JSON.parse(await readFile(join(crosswired, 'content/calendar.json'), 'utf8'))
   const through = (await readFile(join(crosswired, 'content/published-through.txt'), 'utf8')).trim()
-  if (!archive.calendar.some(day => day.date === through)) throw new Error('Invalid SwitchLight release date')
-  await cp(join(crosswired, 'public'), join(staging, CROSSWIRED), { recursive: true })
-  await writeFile(join(staging, CROSSWIRED, 'calendar.json'), JSON.stringify(publicCalendar(archive, through)) + '\n')
+  if (!archive.calendar.some(day => day.date === through)) throw new Error('Invalid WireWise release date')
+  await cp(join(crosswired, 'public'), join(staging, WIREWISE), { recursive: true })
+  await writeFile(join(staging, WIREWISE, 'calendar.json'), JSON.stringify(publicCalendar(archive, through)) + '\n')
   const crop = join(root, 'apps/cropweave')
   const cropArchive = JSON.parse(await readFile(join(crop, 'content/archive.json'), 'utf8'))
   const cropThrough = (await readFile(join(crop, 'content/published-through.txt'), 'utf8')).trim()
@@ -45,7 +45,7 @@ try {
     'privacy.html': 'Daily Den privacy question',
     'unruled/index.html': 'Unruled feedback',
     'unruled/privacy.html': 'Unruled feedback',
-    [`${CROSSWIRED}/index.html`]: 'SwitchLight feedback',
+    [`${WIREWISE}/index.html`]: 'WireWise feedback',
     'cropweave/index.html': 'CropWeave Beta feedback',
   }
   const slot = /^  <!-- site-footer:start -->[\s\S]*?<!-- site-footer:end -->/m
@@ -63,12 +63,12 @@ try {
   const gameHeaders = join(staging, 'unruled', '_headers')
   const headers = await readFile(gameHeaders, 'utf8')
   await writeFile(join(staging, '_headers'), headers.replace(/^\//gm, '/unruled/')
-    + `/${CROSSWIRED}/calendar.json\n  Cache-Control: no-cache\n`
+    + `/${WIREWISE}/calendar.json\n  Cache-Control: no-cache\n`
     + '/cropweave/calendar.json\n  Cache-Control: no-cache\n/cropweave/\n  X-Robots-Tag: noindex\n')
   await rm(gameHeaders)
   await rm(output, { recursive: true, force: true })
   await rename(staging, output)
-  console.log('Built Daily Den, Unruled, SwitchLight, and CropWeave in dist/.')
+  console.log('Built Daily Den, Unruled, WireWise, and CropWeave in dist/.')
 } finally {
   await rm(staging, { recursive: true, force: true })
 }

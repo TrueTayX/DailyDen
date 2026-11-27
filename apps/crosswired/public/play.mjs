@@ -1,5 +1,5 @@
 import { getPuzzleDate, dayStreak, gameStorage, copyText } from '../assets/game-daily.mjs'
-import { GAME_ID, GAME_NAME, HINT_COST, RATINGS } from './config.mjs'
+import { GAME_ID, GAME_NAME, GAME_SLUG, HINT_COST, RATINGS } from './config.mjs'
 import { asMask, cellCoordinates, cellsIn, countBits, flipSets, hasBit } from './engine.mjs'
 import { applyMove, freshRound, rating, restoreRound, shareResult } from './game.mjs'
 import { lightShapes } from './lights.mjs'
@@ -442,7 +442,7 @@ help.addEventListener('close', () => {
 })
 byId('share').addEventListener('click', () => {
   record('share_clicked')
-  const url = new URL(`/${GAME_ID}/`, 'https://dailyden.games').href
+  const url = new URL(`/${GAME_SLUG}/`, 'https://dailyden.games').href
   void exportText(shareResult(GAME_NAME, day, rounds, url), 'Result copied.', true)
 })
 byId('replay').addEventListener('click', () => {

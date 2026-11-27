@@ -44,7 +44,6 @@ export function cropAnalytics(review) {
     let detail = controls.has(control.id) ? control.id : control.dataset.analyticsButton
     if (control.matches('form[method="dialog"] button')) detail = 'close-' + control.closest('dialog').id
     if (control.matches('.home,.result-links a[href="/"]')) detail = 'home'
-    if (control.matches('.result-links a[href="/crosswired/"]')) detail = 'switchlight'
     if (control.matches('.site-footer a')) {
       detail = control.getAttribute('href')?.startsWith('mailto:sponsor@') ? 'sponsor' :
         control.getAttribute('href')?.startsWith('mailto:feedback@') ? 'contact' : 'privacy'
