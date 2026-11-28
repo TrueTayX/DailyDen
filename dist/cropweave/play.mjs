@@ -1,8 +1,9 @@
 import { getPuzzleDate,dayStreak,gameStorage,copyText } from '../assets/game-daily.mjs'
-import { categories,sprite } from './config.mjs'
+import { BETA,categories,sprite } from './config.mjs'
 import { compile,score,rating,legal,EMPTY,ROCK,WATER,VOID } from './engine.mjs'
 import { puzzleForDay,shareText,starText,summarized } from './daily.mjs'
 import { cropAnalytics } from './analytics.mjs'
+import { achievementProgress } from './achievements.mjs'
 import { telemetry } from './telemetry.mjs'
 
 const $=id=>document.getElementById(id)
@@ -39,6 +40,7 @@ function attempt() {
 }
 function save() {
   if (!practice&&!review) {
+    Object.assign(progress,object(store.read('progress',{})))
     progress[puzzle.date]=official
     store.write('progress',progress)
   }
@@ -390,32 +392,83 @@ board.addEventListener('keydown',e=>{
     break
   }
 })
-function outcome() {
+function achievementArt(badge) {
+  const image=element('img')
+  image.src='./art/achievements/'+badge.id+'.webp'
+  image.alt=''
+  image.width=64
+  image.height=64
+  return image
+}
+
+$('achievements-button').addEventListener('click',()=>{
+  const badges=achievementProgress(object(store.read('progress',progress)))
+  $('achievement-count').textContent=badges.filter(badge=>badge.earned).length+' of '+badges.length+' earned'
+  $('achievement-beta').hidden=!BETA
+  const groups=new Map()
+  for (const badge of badges) {
+    if (!groups.has(badge.category)) {
+      const group=element('section')
+      const list=element('ul',undefined,'achievement-grid')
+      group.append(element('h3',badge.category),list)
+      groups.set(badge.category,list)
+    }
+    const row=element('li',undefined,badge.earned?'badge-earned':'badge-locked')
+    const text=element('div')
+    text.append(element('strong',badge.name),element('p',badge.description))
+    const progress=element('span',badge.earned?'Earned':badge.count+'/'+badge.goal,'badge-progress')
+    progress.setAttribute('aria-label',badge.earned?'Earned':badge.count+' of '+badge.goal)
+    row.append(achievementArt(badge),text,progress)
+    groups.get(badge.category).append(row)
+  }
+  $('achievement-groups').replaceChildren(...Array.from(groups.values(),list=>list.parentElement))
+  $('achievements').showModal()
+})
+
+function outcome(unlocked=[]) {
   const result=official.result
   if (!result) return
   $('result-score').textContent=result.coins+' coins · '+starText(result.stars)
   $('result-meta').textContent=result.percent+'% of best · '+plot.config.cards[puzzle.ruleCard].name+(result.golden?' · Golden farm':'')
   $('feedback').href='mailto:feedback@dailyden.games?subject='+encodeURIComponent('CropWeave Beta feedback '+puzzle.id+' · rules '+puzzle.rulesVersion)+
     '&body='+encodeURIComponent('Puzzle '+puzzle.id+' ('+puzzle.date+')\nRules '+puzzle.rulesVersion+' · Generator '+puzzle.generator+'\n\n')
+  const notice=$('new-achievements')
+  notice.hidden=!unlocked.length
+  notice.replaceChildren()
+  if (unlocked.length) {
+    notice.append(achievementArt(unlocked[0]),element('p',
+      'Achievement'+(unlocked.length===1?'':'s')+' earned · '+unlocked.map(badge=>badge.name).join(', ')))
+  }
   $('copied').textContent=''
   $('share-fallback').hidden=true
   $('outcome').showModal()
 }
 $('finish').addEventListener('click',()=>{
   if (run.result||amounts().some(Boolean)) return
+  const eligible=!practice&&!review&&!BETA
+  const before=eligible ? new Set(achievementProgress(object(store.read('progress',progress)))
+    .filter(badge=>badge.earned).map(badge=>badge.id)) : null
   run.result=rating(puzzle,score(plot,run.board))
+  if (!practice&&!review) Object.assign(run.result,{
+    beta:BETA, ruleCard:puzzle.ruleCard, weekday:new Date(puzzle.date+'T00:00:00Z').getUTCDay(), size:plot.size
+  })
   if (practice) $('message').textContent='Practice complete · '+run.result.coins+' coins.'
   if (!practice&&!review) {
     events.event('puzzle_finished',{...run.result,time:Math.min(86400000,Date.now()-run.started),undos:run.undos,
       pickups:run.pickups,preview:run.preview,beatBest:run.result.coins>puzzle.bestKnown.score})
     events.flush()
     track('finish', { puzzle: puzzle.date, stars: run.result.stars, coins: run.result.coins })
+    if (run.result.golden) track('golden', {
+      puzzle: puzzle.date, detail: run.result.coins>puzzle.bestKnown.score?'beat_best':'matched'
+    })
   }
   save()
   render()
-  if (!practice) outcome()
+  const unlocked=before ? achievementProgress(progress).filter(badge=>badge.earned&&!before.has(badge.id)) : []
+  for (const badge of unlocked) track('achievement',{detail:badge.id})
+  if (!practice) outcome(unlocked)
 })
-$('results').addEventListener('click',outcome)
+$('results').addEventListener('click',()=>outcome())
 $('share').addEventListener('click',async()=>{
   if (!review) events.event('share_clicked')
   const text=shareText(puzzle,official.result,plot.config.cards[puzzle.ruleCard].name)

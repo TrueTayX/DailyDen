@@ -321,3 +321,54 @@ dialog::backdrop {background:#152c25a6;backdrop-filter:blur(3px)}
 }
 @media(prefers-reduced-motion:reduce) {* {transition:none}}
 .reduced #harvest-fill {transition:none}
+
+#achievements-button,#settings-button {
+  background:#fff7df;
+  border:1px solid #cbb78e;
+  color:#254e40;
+}
+.toolbar-trophy,.toolbar-gear {
+  width:21px;height:21px;background:currentColor;mask:center/contain no-repeat;
+}
+.toolbar-trophy {mask-image:url('./art/achievements/trophy.png')}
+.toolbar-gear {mask-image:url('./art/achievements/gear.png')}
+#achievements-button {color:#875c28}
+#achievements-button:hover,#settings-button:hover {background:#f2e3bd}
+#settings,#achievements {border-top:6px solid var(--forest)}
+#settings label {
+  margin:6px 0;
+  padding:0 9px;
+  background:#f2efdf;
+  border-radius:8px;
+}
+#settings label:first-of-type {margin-top:13px}
+#achievements {width:min(100% - 18px,660px)}
+#achievements > header {position:sticky;top:-20px;z-index:1;padding-block:5px;background:var(--panel)}
+#achievement-count {color:var(--forest);font-weight:800}
+.achievement-beta {padding:9px 11px;background:#fff0c9;border-radius:8px;color:#624923;font-size:.86rem}
+#achievement-groups h3 {margin:14px 0 6px;font:700 1.1rem Georgia,serif}
+.achievement-grid {
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;
+  list-style:none;margin:0;padding:0;
+}
+.achievement-grid li {
+  min-height:75px;display:grid;grid-template-columns:46px minmax(0,1fr) auto;align-items:center;
+  gap:7px;padding:6px 8px;border:1px solid var(--line);border-radius:10px;background:#f5f0e0;
+}
+.achievement-grid img,.new-achievements img {width:46px;height:46px;object-fit:contain}
+.achievement-grid .badge-locked img {filter:saturate(.6)}
+.achievement-grid .badge-earned {border-color:#9e8c58;background:#e9edd3}
+.achievement-grid strong {display:block;font:700 1rem Georgia,serif}
+.achievement-grid p {margin:3px 0 0;color:var(--muted);font-size:.76rem;line-height:1.28}
+.badge-progress {color:var(--forest);font-size:.72rem;font-weight:800;white-space:nowrap}
+.new-achievements {display:flex;align-items:center;gap:8px;margin-top:10px;padding:5px 8px;background:#e9edd3;border-radius:8px}
+.new-achievements p {margin:0;font-weight:750}
+@media(max-width:520px) {
+  .achievement-grid {grid-template-columns:1fr}
+}
+@media(max-width:379px) and (orientation:portrait) and (max-height:715px) {
+  .hero-copy>p {font-size:.5rem}
+  .hero-copy .name {gap:5px}
+  .hero-copy h1 {font-size:clamp(1.62rem,calc(12vw - .8rem),2rem)}
+  .hero-copy .beta {padding-inline:4px}
+}

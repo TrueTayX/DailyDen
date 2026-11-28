@@ -29,3 +29,9 @@ Simulated annealing and a separate beam search estimate benchmarks. Bounded exha
 The normal build works as static Cloudflare assets. The game writes bounded, anonymous beta event batches to local storage when network telemetry is disabled. For a Pages deployment with Functions, apply `migrations/0001_events.sql` to a D1 database, bind it as `CROPWEAVE_ANALYTICS`, and build with `npm run build -- --cropweave-analytics`. Worker Static Assets hosting requires routing the events handler through its Worker before enabling that build option. The game can load and finish without D1.
 
 The hub and game carry Beta wording, and the game has noindex. The [asset ledger](ASSETS.md) records the Beta sprites. Tiny Fox Art Co. art, broader name and handle clearance, and a separate Lineup promotion are public-launch follow-ups.
+
+## Achievements
+
+CropWeave derives all 18 achievements from completed daily results stored in the browser. Each daily result carries its release flag, rule card, weekday, and plot size alongside the saved score, stars and Golden result. Older, unmarked results are Beta results. Practice and review runs do not qualify, and Beta results never gain eligibility when the game leaves Beta. Streak records use Pacific puzzle dates, and Full almanac checks the rule cards defined by the game’s rules versions.
+
+The percentages used to set targets for new puzzles live in `public/config.mjs`. Published puzzles keep their stored targets. Use the CropWeave dashboard to monitor the three-star rate and Golden results before tuning future puzzles. Scores that exceed the shipped benchmark are counted separately.

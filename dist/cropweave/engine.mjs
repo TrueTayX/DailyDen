@@ -1,4 +1,4 @@
-import { versions, categories } from './config.mjs'
+import { versions, categories, STAR_PERCENTAGES } from './config.mjs'
 
 export const EMPTY = -1, ROCK = -2, WATER = -3, VOID = -4
 const [WHEAT,CARROT,SUNFLOWER,HIVE,WELL,SCARECROW,BARN,CABBAGE,LAVENDER,COOP,PEAR,CORN,POND,MILL,MARKET] =
@@ -120,9 +120,10 @@ export function score(plot, board, detail=false) {
 
 export function thresholds(best) {
   if (!Number.isInteger(best) || best<3) throw new Error('Star thresholds need a score of at least 3')
-  const third=Math.min(best,Math.ceil(best*95/100))
-  const second=Math.min(third-1,Math.ceil(best*80/100))
-  return [Math.min(second-1,Math.ceil(best*60/100)),second,third]
+  const [one,two,three]=STAR_PERCENTAGES.map(percent=>Math.ceil(best*percent/100))
+  const third=Math.min(best,three)
+  const second=Math.min(third-1,two)
+  return [Math.min(second-1,one),second,third]
 }
 
 export function rating(puzzle,coins) {

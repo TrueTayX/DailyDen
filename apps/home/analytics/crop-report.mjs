@@ -17,7 +17,8 @@ const buttonName = id => buttons[id] || (id.startsWith('score-category-') ? 'Sco
 const fields = [
   ['Players', 'players'], ['New', 'new_players'], ['Returning', 'returning_players'],
   ['Starts', 'starts'], ['Finishes', 'finishes'], ['Start rate', 'start_rate'],
-  ['Finish / start', 'finish_rate'], ['3-star farms', 'three_stars'], ['Avg. coins', 'average_coins'],
+  ['Finish / start', 'finish_rate'], ['3-star farms', 'three_stars'], ['3-star rate', 'three_star_rate'],
+  ['Golden farms', 'golden_farms'], ['Beat best-known score', 'beat_best'], ['Avg. coins', 'average_coins'],
   ['Shares', 'shares'], ['Shared / copied', 'shared'], ['Share failures', 'share_failures'],
   ['Achievements', 'achievements'], ['Reopens', 'reopens'], ['Share visits', 'share_visits'],
   ['Practice runs', 'practices'], ['Reveals', 'reveals']
@@ -36,7 +37,9 @@ function dailyRows(data, days) {
     return [day, ...fields.map(([, key]) => {
       if (key === 'start_rate') return rate(row.starts, row.players)
       if (key === 'finish_rate') return rate(row.finishes, row.starts)
+      if (key === 'three_star_rate') return rate(row.three_stars, row.finishes)
       if (key === 'average_coins') return row[key] ?? '—'
+      if ((key === 'golden_farms' || key === 'beat_best') && totals.has(day) && !(key in row)) return '—'
       return row[key] ?? 0
     })]
   }).reverse()

@@ -24,7 +24,8 @@
 
     <div class="toolbar">
       <button type="button" id="help-button" aria-label="How to play"><span class="help-glyph" aria-hidden="true">?</span></button>
-      <button type="button" id="settings-button" aria-label="Settings" aria-haspopup="dialog"><span aria-hidden="true">⚙️</span></button>
+      <button type="button" id="achievements-button" aria-label="Achievements" aria-haspopup="dialog"><span class="toolbar-trophy" aria-hidden="true"></span></button>
+      <button type="button" id="settings-button" aria-label="Settings" aria-haspopup="dialog"><span class="toolbar-gear" aria-hidden="true"></span></button>
     </div>
   </div>
     <div class="hero"><div class="hero-copy"><p>The daily farm puzzle</p><div class="name"><h1>CropWeave</h1><span class="beta">Beta</span></div></div></div>
@@ -82,6 +83,12 @@
     <button id="reset-tips" type="button">Show tips again</button>
     <button id="stats-button" type="button">View stats</button>
   </dialog>
+  <dialog id="achievements" aria-labelledby="achievements-title">
+    <header><h2 id="achievements-title">Achievements</h2><form method="dialog"><button>Close</button></form></header>
+    <p id="achievement-count"></p>
+    <p id="achievement-beta" class="achievement-beta" hidden>Achievement progress begins after Beta. Only completed daily farms count.</p>
+    <div id="achievement-groups"></div>
+  </dialog>
   <dialog id="tutorial" aria-labelledby="tour-title">
     <div class="tour-scene" aria-hidden="true"><img id="tour-piece" alt=""></div>
     <small id="tour-step"></small>
@@ -96,6 +103,7 @@
   <dialog id="outcome" aria-labelledby="result-title">
     <header><h2 id="result-title">Harvest result</h2><form method="dialog"><button>Close</button></form></header>
     <p id="result-score" class="result-score"></p><p id="result-meta"></p>
+    <div id="new-achievements" class="new-achievements" role="status" hidden></div>
     <div class="dialog-actions"><button id="share" class="primary" type="button">Copy result</button>
       <button id="practice" type="button">Practice this puzzle</button>
       <button id="reveal" type="button">See the best-known farm</button></div>
