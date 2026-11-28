@@ -14,7 +14,6 @@ h1,h2,p,dl{margin:0}
 .name,.toolbar{display:flex;align-items:center;gap:5px}
 h1{font:700 clamp(1.8rem,5vw,2.65rem)/1 Georgia,serif;letter-spacing:-.05em}
 .beta,.new{background:var(--gold);color:#47300f;border-radius:4px;padding:1px 5px;font-size:.75rem;font-weight:800}
-.toolbar button{width:44px;min-height:44px;padding:0;font-size:1.23rem}
 main{max-width:1040px;margin:auto;padding:19px 20px;min-height:min(640px,75dvh)}
 .waiting{margin:24px auto;padding:20px;max-width:520px;background:var(--panel);border-radius:12px}
 .farm{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(260px,1fr);align-items:start;gap:20px}
@@ -145,7 +144,11 @@ button:focus-visible,a:focus-visible {outline:3px solid #94421e;outline-offset:2
 .bar {max-width:none;min-height:48px;padding:0 2px}
 .home {font-size:.86rem;font-weight:800;text-decoration:none;display:inline-flex;align-items:center;min-height:44px}
 .toolbar {gap:4px}
-.toolbar button {border:0;background:transparent;border-radius:50%;font:700 1.2rem/1 Georgia,serif}
+.toolbar button {
+  display:grid;place-items:center;width:44px;min-height:44px;padding:0;
+  border:1px solid #cbb78e;border-radius:50%;background:#fff7df;color:#254e40;
+}
+.toolbar button:hover {background:#f2e3bd}
 .hero {position:relative;isolation:isolate;overflow:hidden;border:1px solid #c8bfa5;border-radius:16px;background:#e9dcc1 url('./art/countryside.webp') center 56%/cover;height:clamp(124px,16vh,178px);box-shadow:0 2px 4px #3c391813}
 .hero::before {content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,#fff5dbe8 1%,#fff4d4b8 28%,transparent 62%)}
 .hero-copy {position:absolute;left:clamp(22px,4vw,60px);top:50%;transform:translateY(-50%)}
@@ -227,9 +230,9 @@ dialog::backdrop {background:#152c25a6;backdrop-filter:blur(3px)}
 @media(max-width:760px) and (orientation:portrait) {
   .masthead {position:relative;padding:0}
   .bar {position:absolute;inset:0 6px auto;z-index:1;min-height:44px}
-  .home,.toolbar button {color:#233b30}
+  .home {color:#233b30}
   .toolbar {gap:0}
-  .toolbar button {background:#fff8e8de;width:44px;border:1px solid #cfcbad;margin-left:2px}
+  .toolbar button {margin-left:2px}
   .hero {height:122px;border-radius:0 0 13px 13px;border-width:0 0 1px;background-position:65% center}
   .hero-copy {left:17px;top:auto;bottom:9px;transform:none}
   .hero-copy>p {font-size:.58rem}
@@ -301,8 +304,10 @@ dialog::backdrop {background:#152c25a6;backdrop-filter:blur(3px)}
 .contrast .cell.inspected,.contrast .cell.highlight {box-shadow:inset 0 0 0 3px #76290e}
 .reduced * {transition:none}
 
-.toolbar button {display:grid;place-items:center}
-.help-glyph {width:20px;height:20px;border-radius:100%;border:1.7px solid currentColor;font:700 15px/17px Georgia,serif}
+.help-glyph {
+  display:grid;place-items:center;width:21px;height:21px;
+  border:2px solid currentColor;border-radius:50%;font:700 15px/1 Georgia,serif;
+}
 .harvest-track {position:relative;height:6px;margin:0;background:#486751}
 #harvest-fill {display:block;height:100%;background:#e9c56b;transition:width .2s ease}
 #milestones i {position:absolute;top:0;bottom:0;width:2px;background:#eae2b7}
@@ -322,18 +327,12 @@ dialog::backdrop {background:#152c25a6;backdrop-filter:blur(3px)}
 @media(prefers-reduced-motion:reduce) {* {transition:none}}
 .reduced #harvest-fill {transition:none}
 
-#achievements-button,#settings-button {
-  background:#fff7df;
-  border:1px solid #cbb78e;
-  color:#254e40;
-}
 .toolbar-trophy,.toolbar-gear {
   width:21px;height:21px;background:currentColor;mask:center/contain no-repeat;
 }
 .toolbar-trophy {mask-image:url('./art/achievements/trophy.png')}
 .toolbar-gear {mask-image:url('./art/achievements/gear.png')}
 #achievements-button {color:#875c28}
-#achievements-button:hover,#settings-button:hover {background:#f2e3bd}
 #settings,#achievements {border-top:6px solid var(--forest)}
 #settings label {
   margin:6px 0;
