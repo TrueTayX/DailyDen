@@ -4,6 +4,7 @@ export const GAME_URL = 'https://dailyden.games/cropweave'
 export const RULES_VERSION = '1.0'
 export const GENERATOR_VERSION = '1.0.0'
 export const BETA = true
+export const STAR_PERCENTAGES = [60, 80, 95]
 
 const tile = (id, name, group, relation, limit, unlock, base, tip) =>
   ({ id, name, group, relation, limit, unlock, base, tip })

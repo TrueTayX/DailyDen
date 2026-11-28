@@ -36,3 +36,5 @@ The dashboard report is accessible only with a signed-in session. D1 stores a da
 3. Play CropWeave with browser privacy signals off and open the [CropWeave report](https://dailyden.games/analytics/?game=cropweave) under the same sign-in. Select **Refresh** to load the latest counts.
 
 CropWeave counts a browser once a day for visits, once per daily puzzle for first placements and finished farms, and once per puzzle per day for completed puzzles reopened. Practice play does not enter the official funnel. Button clicks count individually. The share metrics include copy attempts, copy successes and failures, and arrivals from tagged result links. The achievements column is ready for an award event when that feature is implemented. Collection begins after the migration and Worker update. Counts reflect the Pacific day on which the collector received the event.
+
+To enable Golden farm and above-benchmark counts, deploy the latest [Worker](worker.mjs). It writes to the existing CropWeave activity table. Achievement events are deduplicated per browser and badge. No additional database migration is required.

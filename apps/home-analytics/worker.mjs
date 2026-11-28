@@ -47,7 +47,7 @@ function validDay(day) {
     new Date(day).toISOString().slice(0, 10) === day
 }
 
-const cropMilestones = new Set(['start', 'finish', 'reopen'])
+const cropMilestones = new Set(['start', 'finish', 'reopen', 'golden'])
 const cropEvents = new Set(['visit', 'share_visit', 'share_attempt', 'share_success', 'share_failure',
   'achievement', 'practice', 'reveal', 'button', ...cropMilestones])
 const cropButtons = new Set([
@@ -65,6 +65,8 @@ function validCropEvent(event, day) {
   if (event.kind === 'finish' &&
       (!Number.isInteger(event.stars) || event.stars < 0 || event.stars > 3 ||
        !Number.isInteger(event.coins) || event.coins < 0 || event.coins > 10000)) return false
+  if (event.kind === 'golden') return event.detail === 'matched' || event.detail === 'beat_best'
+  if (event.kind === 'achievement') return typeof event.detail === 'string' && /^[a-z0-9-]{1,40}$/.test(event.detail)
   if (event.kind === 'button') return cropButtons.has(event.detail) ||
     (typeof event.detail === 'string' && /^score-category-[0-7]$/.test(event.detail))
   return true
@@ -83,12 +85,13 @@ async function storeCropEvents(request, env) {
     const db = env.HOME_ANALYTICS
     const statements = input.events.map(event => {
       const { kind, id, puzzle } = event
-      const dedup = kind === 'start' || kind === 'finish' ? puzzle :
+      const dedup = kind === 'start' || kind === 'finish' || kind === 'golden' ? puzzle :
+        kind === 'achievement' ? event.detail :
         kind === 'reopen' ? day + ':' + puzzle : kind === 'visit' || kind === 'share_visit' ? day : id
       return db.prepare(`INSERT OR IGNORE INTO cropweave_activity
         (event_key, day, visitor, kind, detail, stars, coins) VALUES (?, ?, ?, ?, ?, ?, ?)`)
         .bind(`${visitor}:${kind}:${dedup}`, day, visitor, kind,
-          kind === 'button' ? event.detail : '', kind === 'finish' ? event.stars : null, kind === 'finish' ? event.coins : null)
+          ['button', 'golden', 'achievement'].includes(kind) ? event.detail : '', kind === 'finish' ? event.stars : null, kind === 'finish' ? event.coins : null)
     })
     if (input.events.some(event => event.kind === 'visit')) {
       statements.unshift(db.prepare(`INSERT INTO cropweave_visitors (visitor, first_day) VALUES (?, ?)
@@ -109,6 +112,8 @@ async function cropReport(db, from, to, today) {
       SUM(kind='visit' AND v.first_day<e.day) AS returning_players,
       SUM(kind='start') AS starts, SUM(kind='finish') AS finishes,
       SUM(kind='finish' AND stars=3) AS three_stars,
+      SUM(kind='golden') AS golden_farms,
+      SUM(kind='golden' AND detail='beat_best') AS beat_best,
       ROUND(AVG(CASE WHEN kind='finish' THEN coins END), 1) AS average_coins,
       SUM(kind='share_attempt') AS shares, SUM(kind='share_success') AS shared,
       SUM(kind='share_failure') AS share_failures, SUM(kind='share_visit') AS share_visits,
